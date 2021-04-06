@@ -1,4 +1,4 @@
-package com.example.moodtracker.ui.dashboard;
+package com.example.moodtracker.ui.talk;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,14 +14,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.moodtracker.R;
 
-public class DashboardFragment extends Fragment {
+public class TalkFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
+    private TalkViewModel dashboardViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+                new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         final TextView textView = root.findViewById(R.id.text_dashboard);
         dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {

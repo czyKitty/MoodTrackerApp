@@ -12,14 +12,22 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.moodtracker.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
+        android:id="@+id/navigation_talk"
+        android:name="com.example.moodtracker.ui.talk.TalkFragment"
+        android:label="@string/title_talk"
         tools:layout="@layout/fragment_talk" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.moodtracker.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
+        android:id="@+id/navigation_track"
+        android:name="com.example.moodtracker.ui.track.TrackFragment"
+        android:label="@string/title_pref"
         tools:layout="@layout/fragment_track" />
+
+    <fragment
+        android:id="@+id/navigation_pref"
+        android:name="com.example.moodtracker.ui.pref.PrefFragment"
+        android:label="@string/title_pref"
+        tools:layout="@layout/fragment_pref" />
+
+
 </navigation>

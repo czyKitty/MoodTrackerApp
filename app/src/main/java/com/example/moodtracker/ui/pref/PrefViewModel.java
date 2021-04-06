@@ -1,14 +1,14 @@
-package com.example.moodtracker.ui.notifications;
+package com.example.moodtracker.ui.pref;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NotificationsViewModel extends ViewModel {
+public class PrefViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public NotificationsViewModel() {
+    public PrefViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is notifications fragment");
     }
