@@ -12,6 +12,14 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_home">Home</string>
     <string name="title_talk">Talk</string>
+    <string name="btn_talk">Press to Speak</string>
+
     <string name="title_track">Track</string>
+    <string name="line_chart">Mood Trend</string>
+    <string name="pie_chart">Mood Distribution</string>
+    <string name="word_cloud">Mood Key</string>
+
+
     <string name="title_pref">Preference</string>
+
 </resources>

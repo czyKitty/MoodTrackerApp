@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/navigation_track"
         android:name="com.example.moodtracker.ui.track.TrackFragment"
-        android:label="@string/title_pref"
+        android:label="@string/title_track"
         tools:layout="@layout/fragment_track" />
 
     <fragment

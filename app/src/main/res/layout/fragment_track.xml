@@ -4,19 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pref.PrefFragment">
+    android:background="#FFFFFF"
+    android:outlineProvider="none"
+    tools:context=".ui.track.TrackFragment">
 
-    <TextView
-        android:id="@+id/text_notifications"
+    <Button
+        android:id="@+id/btn_line"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
+        android:layout_height="80dp"
+        android:background="@android:color/transparent"
+        android:drawableLeft="@drawable/icons8_line_chart_26"
+        android:gravity="left|center_vertical"
+        android:text="@string/line_chart"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:icon="@drawable/icons8_pie_chart_52"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <Button
+        android:id="@+id/btn_pie"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/transparent"
+        android:drawableLeft="@drawable/icons8_pie_chart_26"
+        android:gravity="left|center_vertical"
+        android:text="@string/pie_chart"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/btn_line"
+        app:layout_constraintTop_toBottomOf="@+id/btn_line" />
+
+    <Button
+        android:id="@+id/btn_word"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/transparent"
+        android:drawableLeft="@drawable/icons8_mind_map_26"
+        android:gravity="left|center_vertical"
+        android:text="@string/word_cloud"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/btn_pie"
+        app:layout_constraintTop_toBottomOf="@+id/btn_pie" />
 </androidx.constraintlayout.widget.ConstraintLayout>
