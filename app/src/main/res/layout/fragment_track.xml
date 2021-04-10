@@ -40,16 +40,30 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_line" />
 
     <Button
-        android:id="@+id/btn_word"
+        android:id="@+id/btn_wordPos"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginTop="5dp"
         android:background="@android:color/transparent"
         android:drawableLeft="@drawable/icons8_mind_map_26"
         android:gravity="left|center_vertical"
-        android:text="@string/word_cloud"
+        android:text="@string/word_cloudPos"
         android:textColor="#000000"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="@+id/btn_pie"
         app:layout_constraintTop_toBottomOf="@+id/btn_pie" />
+
+    <Button
+        android:id="@+id/btn_wordNeg"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/transparent"
+        android:drawableLeft="@drawable/icons8_mind_map_26"
+        android:gravity="left|center_vertical"
+        android:text="@string/word_cloudNeg"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/btn_wordPos"
+        app:layout_constraintTop_toBottomOf="@+id/btn_wordPos" />
 </androidx.constraintlayout.widget.ConstraintLayout>
