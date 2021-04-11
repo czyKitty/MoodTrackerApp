@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.moodtracker.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
 
@@ -38,14 +39,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class TalkFragment extends Fragment {
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
+
     private TalkViewModel dashboardViewModel;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private String input;
     private Runnable mytask;
     Map<String, Journal> journals = new HashMap<>();
-    final FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference ref = database.getReference("server/saving-data/journals");
-    DatabaseReference journalsRef = ref.child("journals");
+//    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+//    DatabaseReference ref = database.getReference("server/saving-data/journals");
+//    DatabaseReference journalsRef = ref.child("journals");
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -83,9 +86,10 @@ public class TalkFragment extends Fragment {
 
     public void newEntry(String input) {
         Map<String, Journal> journals = new HashMap<>();
-        Journal j = new Journal(input);
-        journals.put("Journals", j);
-        journalsRef.updateChildrenAsync(journals);
+        db.collection("journals").add("test adding database");
+//        Journal j = new Journal(input);
+//        journals.put("Journals", j);
+//        journalsRef.updateChildrenAsync(journals);
     }
 
     static class Analysis_nlp {
