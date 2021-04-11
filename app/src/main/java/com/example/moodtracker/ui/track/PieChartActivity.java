@@ -3,7 +3,6 @@ package com.example.moodtracker.ui.track;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -18,8 +17,6 @@ import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.chart.common.listener.Event;
 import com.anychart.chart.common.listener.ListenersInterface;
 import com.anychart.charts.Pie;
-import com.anychart.enums.Align;
-import com.anychart.enums.LegendLayout;
 import com.example.moodtracker.R;
 
 import java.util.ArrayList;
@@ -35,8 +32,8 @@ public class PieChartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
-
         //define view variables
+
         anyChartView = findViewById(R.id.chartView);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
         btnBack = (ImageButton)findViewById(R.id.btn_back);
@@ -67,7 +64,7 @@ public class PieChartActivity extends AppCompatActivity {
 
         //Read data from database
         List<DataEntry> data = new ArrayList<>();
-        //data.add(new ValueDataEntry("Mood", value));
+        data.add(new ValueDataEntry("Mood", 123));
 
         // set data
         pie.data(data);

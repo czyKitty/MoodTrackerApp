@@ -20,6 +20,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.track.LineChartActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".ui.track.PieChartActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".ui.track.WordNegActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".ui.track.WordPosActivity"
+            android:label="@string/app_name">
+        </activity>
     </application>
 
 </manifest>

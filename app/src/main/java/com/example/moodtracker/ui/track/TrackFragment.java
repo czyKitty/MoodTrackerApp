@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.moodtracker.R;
@@ -16,7 +15,7 @@ public class TrackFragment extends Fragment {
 
     Button btn_line, btn_pie, btn_wordPos, btn_wordNeg;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
+    public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // define view
         View trackView = inflater.inflate(R.layout.fragment_track, container, false);
