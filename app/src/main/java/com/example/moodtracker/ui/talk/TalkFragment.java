@@ -3,6 +3,7 @@ package com.example.moodtracker.ui.talk;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.moodtracker.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
@@ -46,6 +50,8 @@ public class TalkFragment extends Fragment {
     private String input;
     private Runnable mytask;
     Map<String, Journal> journals = new HashMap<>();
+
+
 //    final FirebaseDatabase database = FirebaseDatabase.getInstance();
 //    DatabaseReference ref = database.getReference("server/saving-data/journals");
 //    DatabaseReference journalsRef = ref.child("journals");
@@ -55,8 +61,31 @@ public class TalkFragment extends Fragment {
         dashboardViewModel =
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
+
+        Map<String, Object> user = new HashMap<>();
+        user.put("first", "Ada");
+        user.put("last", "Lovelace");
+        user.put("born", 1815);
+
+        db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            private static final String TAG = "SUCCESS";
+
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            private static final String TAG = "ERROR";
+
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error adding document", e);
+            }
+        });
         return root;
     }
+
+
 
     public class Journal {
 
