@@ -1,6 +1,10 @@
 package com.example.moodtracker.ui.track;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,13 +27,28 @@ import java.util.List;
 
 public class LineChartActivity extends AppCompatActivity {
 
+    ImageButton btnBack;
+    Spinner selectTime;
+    AnyChartView anyChartView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
 
-        AnyChartView anyChartView = findViewById(R.id.chartView);
+        //define view variables
+        anyChartView = findViewById(R.id.chartView);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+        btnBack = (ImageButton)findViewById(R.id.btn_back);
+        selectTime = (Spinner)findViewById(R.id.select_time);
+
+        //back to track page
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LineChartActivity.this, TrackFragment.class));
+            }
+        });
 
         // define cartesian coord
         Cartesian cartesian = AnyChart.line();
@@ -44,15 +63,13 @@ public class LineChartActivity extends AppCompatActivity {
         // define position mod
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
 
-        // set plot title
-        cartesian.title("Trend of Sales of the Most Popular Products of ACME Corp.");
         // set x and y labels
-        cartesian.yAxis(0).title("Number of Bottles Sold (thousands)");
+        cartesian.yAxis(0).title("Mood level");
         cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
 
         // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        seriesData.add(new CustomDataEntry("1986", 3.6, 2.3, 2.8));
+        seriesData.add(new ValueDataEntry("1986", 3.6));
 
         // place data in set
         Set set = Set.instantiate();
@@ -79,15 +96,5 @@ public class LineChartActivity extends AppCompatActivity {
         cartesian.legend().padding(0d, 0d, 10d, 0d);
 
         anyChartView.setChart(cartesian);
-    }
-
-    // class of data entry, specified for line chart
-    private class CustomDataEntry extends ValueDataEntry {
-
-        CustomDataEntry(String x, Number value, Number value2, Number value3) {
-            super(x, value);
-            setValue("value2", value2);
-            setValue("value3", value3);
-        }
     }
 }

@@ -12,7 +12,8 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_home">Home</string>
     <string name="title_talk">Talk</string>
-    <string name="btn_talk">Press to Speak</string>
+    <string name="btn_talk">Start Record</string>
+    <string name="btn_talk1">End Record</string>
 
     <string name="title_track">Track</string>
     <string name="line_chart">Trend of My Mood</string>

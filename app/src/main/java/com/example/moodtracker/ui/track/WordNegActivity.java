@@ -1,6 +1,10 @@
 package com.example.moodtracker.ui.track;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,18 +21,33 @@ import java.util.List;
 
 public class WordNegActivity extends AppCompatActivity {
 
+    ImageButton btnBack;
+    Spinner selectTime;
+    AnyChartView anyChartView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
 
-        AnyChartView anyChartView = findViewById(R.id.chartView);
+        //define view variables
+        anyChartView = findViewById(R.id.chartView);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
+        btnBack = (ImageButton)findViewById(R.id.btn_back);
+        selectTime = (Spinner)findViewById(R.id.select_time);
 
         TagCloud tagCloud = AnyChart.tagCloud();
 
+        //back to track page
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(WordNegActivity.this, TrackFragment.class));
+            }
+        });
+
         // Define title of the plot
-        tagCloud.title("World Population");
+        tagCloud.title("Key Terms for negative Mood");
 
         // settings
         OrdinalColor ordinalColor = OrdinalColor.instantiate();

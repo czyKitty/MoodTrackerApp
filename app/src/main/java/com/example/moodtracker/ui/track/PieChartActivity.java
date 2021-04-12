@@ -32,8 +32,8 @@ public class PieChartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
-        //define view variables
 
+        //define view variables
         anyChartView = findViewById(R.id.chartView);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
         btnBack = (ImageButton)findViewById(R.id.btn_back);
