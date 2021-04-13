@@ -46,46 +46,18 @@ public class TalkFragment extends Fragment {
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
 
     private TalkViewModel dashboardViewModel;
-    private final AtomicBoolean running = new AtomicBoolean(false);
     private String input;
-    private Runnable mytask;
-    Map<String, Journal> journals = new HashMap<>();
 
-
-//    final FirebaseDatabase database = FirebaseDatabase.getInstance();
-//    DatabaseReference ref = database.getReference("server/saving-data/journals");
-//    DatabaseReference journalsRef = ref.child("journals");
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         dashboardViewModel =
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
-
-        Map<String, Object> user = new HashMap<>();
-        user.put("first", "Ada");
-        user.put("last", "Lovelace");
-        user.put("born", 1815);
-
-        db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            private static final String TAG = "SUCCESS";
-
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            private static final String TAG = "ERROR";
-
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error adding document", e);
-            }
-        });
+        //Test
+        newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
         return root;
     }
-
-
 
     public class Journal {
 
@@ -113,12 +85,29 @@ public class TalkFragment extends Fragment {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void newEntry(String input) {
         Map<String, Journal> journals = new HashMap<>();
-        db.collection("journals").add("test adding database");
-//        Journal j = new Journal(input);
-//        journals.put("Journals", j);
-//        journalsRef.updateChildrenAsync(journals);
+        Journal j = new Journal(input);
+        journals.put("Journals", j);
+        try {
+        db.collection("journals").add(journals).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            private static final String TAG = "SUCCESS";
+
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            private static final String TAG = "ERROR";
+
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error adding document", e);
+            }
+        }); } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     static class Analysis_nlp {
@@ -148,13 +137,16 @@ public class TalkFragment extends Fragment {
 
 //        Run Network API Call on separate thread
 //        Use separate thread so to not block the UI thread
-        mytask = () -> {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
                 try  {
                     // Tone Analysis
                     ToneOptions toneOptions = new ToneOptions.Builder()
                             .text(input)
                             .build();
                     tone.set(service.tone(toneOptions).execute().getResult());
+
                     // Keyword Analysis
                     KeywordsOptions keywords = new KeywordsOptions.Builder()
                             .sentiment(true)
@@ -169,6 +161,7 @@ public class TalkFragment extends Fragment {
                             .features(features)
                             .build();
                     keys.set(service_nlp.analyze(parameters).execute().getResult());
+
                     // General Sentiment Analysis
                     SentimentOptions sentiment = new SentimentOptions.Builder()
                             .document(true)
@@ -185,8 +178,9 @@ public class TalkFragment extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            };
-        mytask.run();
+            }
+        }).start();
+
         return new Analysis_nlp(tone.get(), keys.get(), score.get());
     }
 
