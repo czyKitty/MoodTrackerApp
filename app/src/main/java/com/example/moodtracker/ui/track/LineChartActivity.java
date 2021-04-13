@@ -3,6 +3,7 @@ package com.example.moodtracker.ui.track;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
@@ -42,6 +43,11 @@ public class LineChartActivity extends AppCompatActivity {
         btnBack = (ImageButton)findViewById(R.id.btn_back);
         selectTime = (Spinner)findViewById(R.id.select_time);
 
+        //initialize spinner option.
+        String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        selectTime.setAdapter(adapter);
+
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +75,7 @@ public class LineChartActivity extends AppCompatActivity {
 
         // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        seriesData.add(new ValueDataEntry("1986", 3.6));
+        seriesData.add(new ValueDataEntry("2021/4/13 21:00", 3.6));
 
         // place data in set
         Set set = Set.instantiate();
