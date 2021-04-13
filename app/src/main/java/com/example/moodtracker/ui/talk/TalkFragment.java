@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -47,6 +49,8 @@ public class TalkFragment extends Fragment {
 
     private TalkViewModel dashboardViewModel;
     private String input;
+    Button btnSubmit;
+    EditText txtJournal;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -56,6 +60,17 @@ public class TalkFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
         newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
+
+        btnSubmit = (Button) root.findViewById(R.id.submitEntry);
+        txtJournal = (EditText) root.findViewById(R.id.txt_talk);
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newEntry(txtJournal.getText().toString());
+            }
+        });
+
         return root;
     }
 
