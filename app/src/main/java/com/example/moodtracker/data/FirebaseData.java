@@ -19,11 +19,7 @@ public class FirebaseData {
     public FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
     public String userID = db.collection("users").getId();
 
-
-
     Map<String, Object> journal1 = new HashMap<>();
-
-
 
     public CollectionReference getColRef() {
         CollectionReference collectionRef = db.collection("journals");

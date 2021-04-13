@@ -1,6 +1,7 @@
 package com.example.moodtracker.ui.track;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.moodtracker.data.FirebaseData;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ public class PieChartActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
+    static FirebaseData firebase = new FirebaseData();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +65,12 @@ public class PieChartActivity extends AppCompatActivity {
         });
 
         //Read data from database
+
         List<DataEntry> data = new ArrayList<>();
-        data.add(new ValueDataEntry("Mood", 123));
+        double[] score = firebase.getSentimentScore();
+        String mood = firebase.getKeywords();
+        data.add(new ValueDataEntry(mood, score[0]));
+
 
         // set data
         pie.data(data);
