@@ -46,19 +46,62 @@ public class FirebaseData {
         });
         return result[0];
     }
+    public String getDate(){
+        CollectionReference collectionRef = getColRef();
+        String TAG = "GET DATE";
+
+        final String[] result = {""};
+        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()){
+                        Log.d(TAG, document.getId() + "=>" + document.get("date"));
+                        result[0] = (String) document.get("date");
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents", task.getException());
+                }
+            }
+        });
+        return result[0];
+    }
+
+
+    public String getTones(){
+
+        CollectionReference collectionRef = getColRef();
+        String TAG = "GET TONES";
+
+        final String[] result = {""};
+        collectionRef.whereEqualTo("tones", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()){
+                        Log.d(TAG, document.getId() + "=>" + document.get("tones"));
+                        result[0] = (String) document.get("tones");
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents", task.getException());
+                }
+            }
+        });
+        return result[0];
+    }
 
     public double[] getSentimentScore(){
         CollectionReference collectionRef = getColRef();
         String TAG = "GET SENTIMENT SCORE";
         final double[] result = {0};
 
-        collectionRef.whereEqualTo("sentimentScore", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        collectionRef.whereEqualTo("sentiment", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
                     for (QueryDocumentSnapshot document : task.getResult()){
-                        Log.d(TAG, document.getId() + "=>" + document.get("sentimentScore"));
-                        result[0] = (double) document.get("sentimentScore");
+                        Log.d(TAG, document.getId() + "=>" + document.get("sentiment"));
+                        result[0] = (double) document.get("sentiment");
                     }
                 } else {
                     Log.d(TAG, "Error getting documents", task.getException());
