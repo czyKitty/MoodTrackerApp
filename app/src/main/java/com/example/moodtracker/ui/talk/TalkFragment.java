@@ -1,5 +1,6 @@
 package com.example.moodtracker.ui.talk;
 
+import android.content.Context;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -64,11 +66,17 @@ public class TalkFragment extends Fragment {
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);
 
+
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast toast=Toast.makeText(getActivity().getApplicationContext(),"SUCCESSFULLY ADDED JOURNALS",Toast.LENGTH_SHORT);
+                toast.show();
                 newEntry(txtJournal.getText().toString());
+
             }
+
+
         });
 
         return root;
