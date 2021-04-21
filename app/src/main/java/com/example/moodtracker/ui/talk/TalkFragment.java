@@ -18,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.moodtracker.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
@@ -36,6 +38,7 @@ import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import com.ibm.watson.tone_analyzer.v3.model.ToneOptions;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TalkFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private TalkViewModel dashboardViewModel;
     private String input;
@@ -59,7 +63,7 @@ public class TalkFragment extends Fragment {
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
-        newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
+//        newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
 
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);
@@ -75,7 +79,7 @@ public class TalkFragment extends Fragment {
     }
 
     public class Journal {
-
+        public String uid;
         public Date date;
         public String text;
         public AnalysisResults sentiment;
@@ -85,6 +89,9 @@ public class TalkFragment extends Fragment {
         @RequiresApi(api = Build.VERSION_CODES.O)
         public Journal(String entry_text) {
             // ...
+            if (user != null) {
+                uid = user.getUid();
+            }
             text = entry_text;
 //            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             date = new Date();
@@ -99,14 +106,26 @@ public class TalkFragment extends Fragment {
             // ...
         }
     }
+//    public class Keywords {
+//        public String uid;
+//        public Map<String, Integer> negative;
+//        public Map<String, Integer> positive;
+//
+//        public Keywords(AnalysisResults keywords, AnalysisResults sentiment) {
+//            // ...
+//            if (user != null) {
+//                uid = user.getUid();
+//            }
+//
+//
+//        }
+//    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void newEntry(String input) {
-        Map<String, Journal> journals = new HashMap<>();
         Journal j = new Journal(input);
-        journals.put("Journals", j);
         try {
-        db.collection("journals").add(journals).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             private static final String TAG = "SUCCESS";
 
             @Override
