@@ -18,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,7 +35,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
  */
-public class GoogleSignInActivity extends Activity implements View.OnClickListener {
+public class GoogleSignInActivity extends Activity {
 
     SignInButton signInButton;
     Button signOutButton;
@@ -60,27 +61,31 @@ public class GoogleSignInActivity extends Activity implements View.OnClickListen
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         // [END config_signin]
-        statusTextView = (TextView) findViewById(R.id.statusTextView);
-        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener(this);
 
+        statusTextView = (TextView) findViewById(R.id.statusTextView);
+        statusTextView.setText("ready to sign in ");
+
+        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "i am Logging in");
+                signIn();
+            }
+        });
         signOutButton = (Button) findViewById(R.id.signOutButton);
-        signOutButton.setOnClickListener(this);
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "i am Logging out");
+                signOut();
+            }
+        });
         // [START initialize_auth]
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
     }
-
-    // [START on_start_check_user]
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
-    // [END on_start_check_user]
 
     // [START onactivityresult]
     @Override
@@ -95,11 +100,14 @@ public class GoogleSignInActivity extends Activity implements View.OnClickListen
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                handleSignInResult(result);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
             }
         }
+
     }
     // [END onactivityresult]
 
@@ -125,10 +133,18 @@ public class GoogleSignInActivity extends Activity implements View.OnClickListen
     }
     // [END auth_with_google]
 
+    private void handleSignInResult(GoogleSignInResult result){
+        Log.d(TAG, "handleSignInResult: "+ result.isSuccess());
+        if (result.isSuccess()){
+            GoogleSignInAccount acct = result.getSignInAccount();
+            statusTextView.setText("hello, " + acct.getDisplayName());
+        }
+    }
     // [START signin]
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
+        Log.d(TAG, "signing in!!");
     }
     // [END signin]
 
@@ -137,20 +153,8 @@ public class GoogleSignInActivity extends Activity implements View.OnClickListen
     }
 
     private void signOut(){
-
         statusTextView.setText("Signed out");
-
     }
 
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.sign_in_button:
-                signIn();
-                break;
-            case R.id.signOutButton:
-                signOut();
-                break;
-        }
-    }
+
 }
