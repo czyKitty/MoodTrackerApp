@@ -63,7 +63,7 @@ public class TalkFragment extends Fragment {
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
-//        newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
+        newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
 
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);
