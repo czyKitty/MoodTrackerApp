@@ -5,6 +5,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
 import com.ibm.watson.natural_language_understanding.v1.NaturalLanguageUnderstanding;
@@ -25,38 +27,58 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class Journal {
     protected String text; // text of the journal
-    protected AnalyzerNLP out; // analysis of journal
+//    protected AnalyzerNLP out; // analysis of journal
+    protected Date date;
+    protected String userID;
+    AtomicReference<ToneAnalysis> tone;
+    AtomicReference<AnalysisResults> keys;
+    AtomicReference<AnalysisResults> sentiment;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public Journal(String entry_text) {
+    public Journal(String entry_text, FirebaseUser user) throws InterruptedException {
         text = entry_text;
-        out = getSentiment(text);
+        AnalyzerNLP out = getSentiment(text);
+        tone = out.tone;
+        keys = out.keys;
+        sentiment = out.sentiment;
+        date = new Date();
+        userID = user.getUid();
     }
 
-    public ToneAnalysis getTone(){
-        return out.tone;
+    public AtomicReference<ToneAnalysis> getTone(){
+        return tone;
     }
 
-    public AnalysisResults getSentiment(){
-        return out.sentiment;
+    public AtomicReference<AnalysisResults> getSentiment(){
+        return sentiment;
     }
 
-    public AnalysisResults getKeyword(){
-        return out.keys;
+    public AtomicReference<AnalysisResults> getKeyword(){
+        return keys;
+    }
+
+    public Date getDate(){
+        return date;
     }
 
     /**
      * Static private class to represent analyze result
      */
     static private class AnalyzerNLP {
-        ToneAnalysis tone;
-        AnalysisResults keys;
-        AnalysisResults sentiment;
+        AtomicReference<ToneAnalysis> tone;
+        AtomicReference<AnalysisResults> keys;
+        AtomicReference<AnalysisResults> sentiment;
 
-        AnalyzerNLP(ToneAnalysis a, AnalysisResults b, AnalysisResults c) {
-            tone = a;
-            keys = b;
-            sentiment = c;
+//        AnalyzerNLP(ToneAnalysis a, AnalysisResults b, AnalysisResults c) {
+//            tone = a;
+//            keys = b;
+//            sentiment = c;
+//        }
+
+        public AnalyzerNLP(AtomicReference<ToneAnalysis> t, AtomicReference<AnalysisResults> k, AtomicReference<AnalysisResults> score) {
+            tone = t;
+            keys = k;
+            sentiment = score;
         }
     }
 
@@ -65,7 +87,7 @@ public class Journal {
      * @param input journal entry
      * @return AnalyzerNLP
      */
-    private AnalyzerNLP getSentiment(String input) {
+    private AnalyzerNLP getSentiment(String input) throws InterruptedException {
         AtomicReference<ToneAnalysis> tone = new AtomicReference<>(new ToneAnalysis());
         AtomicReference<AnalysisResults> keys = new AtomicReference<>(new AnalysisResults());
         AtomicReference<AnalysisResults> score = new AtomicReference<>(new AnalysisResults());
@@ -74,15 +96,18 @@ public class Journal {
         ToneAnalyzer service = new ToneAnalyzer("2017-09-21", authenticator);
         service.setServiceUrl("https://api.us-east.tone-analyzer.watson.cloud.ibm.com/instances/c2f34cbf-a90a-4785-88d8-a41c0a08ac8c");
 
-        Authenticator authenticator_nlp = new IamAuthenticator("SO_Deq8xw8V3uT1inqIAqzyMi2c7ku4OBhcwg97Nb5f6");
-        NaturalLanguageUnderstanding service_nlp = new NaturalLanguageUnderstanding("2019-07-12", authenticator_nlp);
-        service_nlp.setServiceUrl("https://api.us-east.natural-language-understanding.watson.cloud.ibm.com/instances/4dd4583a-125a-47b2-bec8-4bf171ffca01");
+        Authenticator authenticator1 = new IamAuthenticator("SO_Deq8xw8V3uT1inqIAqzyMi2c7ku4OBhcwg97Nb5f6");
+        NaturalLanguageUnderstanding service1 = new NaturalLanguageUnderstanding("2019-07-12", authenticator1);
+        service1.setServiceUrl("https://api.us-east.natural-language-understanding.watson.cloud.ibm.com/instances/4dd4583a-125a-47b2-bec8-4bf171ffca01");
 
+        Authenticator authenticator2 = new IamAuthenticator("SO_Deq8xw8V3uT1inqIAqzyMi2c7ku4OBhcwg97Nb5f6");
+        NaturalLanguageUnderstanding service2 = new NaturalLanguageUnderstanding("2019-07-12", authenticator2);
+        service2.setServiceUrl("https://api.us-east.natural-language-understanding.watson.cloud.ibm.com/instances/4dd4583a-125a-47b2-bec8-4bf171ffca01");
         //Run Network API Call on separate thread
         //Use separate thread so to not block the UI thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        Thread thread = new Thread(){
+            public void run(){
+                System.out.println("Thread Running");
                 try {
                     // Tone Analysis
                     ToneOptions toneOptions = new ToneOptions.Builder()
@@ -103,7 +128,7 @@ public class Journal {
                             .text(input)
                             .features(features)
                             .build();
-                    keys.set(service_nlp.analyze(parameters).execute().getResult());
+                    keys.set(service1.analyze(parameters).execute().getResult());
 
                     // General Sentiment Analysis
                     SentimentOptions sentiment = new SentimentOptions.Builder()
@@ -115,14 +140,26 @@ public class Journal {
                     AnalyzeOptions parameters_2 = new AnalyzeOptions.Builder()
                             .text(input)
                             .features(features_2)
+                            .language("en")
                             .build();
-                    score.set(service_nlp.analyze(parameters_2).execute().getResult());
+                    AnalysisResults response = service2
+                            .analyze(parameters_2)
+                            .execute()
+                            .getResult();
+//                    score.set(service2.analyze(parameters_2).execute().getSentiment());
+                    System.out.println(response);
+                    score.set(response);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
-        return new AnalyzerNLP(tone.get(), keys.get(), score.get());
+        };
+        thread.start();
+        thread.join();
+//        System.out.println(keys);
+//        System.out.println(score);
+
+        return new AnalyzerNLP(tone, keys, score);
     }
 }

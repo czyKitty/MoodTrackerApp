@@ -21,6 +21,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.moodtracker.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
@@ -53,6 +55,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class TalkFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private String input;
     Button btnTalk, btnSubmit;
@@ -75,10 +78,10 @@ public class TalkFragment extends Fragment {
             public void onClick(View v) {
                 // get uid from preference
                 SharedPreferences sh = getActivity().getSharedPreferences("AUTHENTICATION_FILE_NAME", MODE_PRIVATE);
-                String uid = sh.getString("UID","");
+//                String uid = sh.getString("UID","");
 
                 //storeJournal("123", txtJournal.getText().toString());
-                storeJournal(uid,"Today was an amazing day for me. I hope tomorrow is good also.");
+                storeJournal("Today was an amazing day for me. I hope tomorrow is good also.");
                 Toast toast=Toast.makeText(getActivity().getApplicationContext(),"SUCCESSFULLY ADDED JOURNALS",Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -87,14 +90,16 @@ public class TalkFragment extends Fragment {
     }
 
     /**
-     * @param uid: unique id for user
      * @param input: journal entry
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void storeJournal(String uid, String input) {
+    public void storeJournal(String input) {
         try {
+            Map<String, Object> journal = new HashMap<>();
+            journal =  createEntry(input);
+//            Journal j = new Journal(input, user);
             // add new document to collection "uid"
-            db.collection(uid).document(Calendar.getInstance().getTime()).add(createEntry(input)).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            db.collection("Journals").add(journal).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 private static final String TAG = "SUCCESS";
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
@@ -107,6 +112,25 @@ public class TalkFragment extends Fragment {
                    Log.w(TAG, "Error adding document", e);
                 }
             });
+
+//            db.collection("Journals").document("journal")
+//                    .set(journal)
+//                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                        private static final String TAG = "SUCCESS";
+//                        @Override
+//                        public void onSuccess(Void aVoid) {
+//                            Log.d(TAG, "DocumentSnapshot successfully written!");
+//                        }
+//                    })
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        private static final String TAG = "ERROR";
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Log.w(TAG, "Error writing document", e);
+//                        }
+//                    });
+
+
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -118,9 +142,9 @@ public class TalkFragment extends Fragment {
      * @return journal entry to store in firebase
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private Map<String, Object> createEntry(String input){
+    private Map<String, Object> createEntry(String input) throws InterruptedException {
         Map<String, Object> journal = new HashMap<>();
-        Journal j = new Journal(input);
+        Journal j = new Journal(input, user);
         journal.put("journal", j); // original journal text
         journal.put("sentiment", j.getSentiment()); // sentiment score of text
         journal.put("keyword", j.getKeyword()); // keyword of the text

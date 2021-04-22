@@ -1,7 +1,7 @@
 package com.example.moodtracker.ui.track;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.moodtracker.data.FirebaseData;
+//import com.example.moodtracker.data.FirebaseData;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -91,13 +91,13 @@ public class PieChartActivity extends AppCompatActivity {
 
         SharedPreferences sh = getSharedPreferences("AUTHENTICATION_FILE_NAME", MODE_PRIVATE);
         String uid = sh.getString("UID", "");
-        FirebaseData firebase = new FirebaseData(uid, time);
+//        FirebaseData firebase = new FirebaseData(uid, time);
 
         //Read data from database
         List<DataEntry> data = new ArrayList<>();
-        double[] score = firebase.getSentimentScore();
-        String mood = firebase.getTones();
-        data.add(new ValueDataEntry(mood, score[0]));
+//        double[] score = firebase.getSentimentScore();
+//        String mood = firebase.getTones();
+//        data.add(new ValueDataEntry(mood, score[0]));
 
         Pie pie = AnyChart.pie();
 
