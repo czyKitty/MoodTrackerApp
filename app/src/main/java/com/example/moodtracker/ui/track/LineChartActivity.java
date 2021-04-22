@@ -52,7 +52,7 @@ public class LineChartActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LineChartActivity.this, TrackFragment.class));
+                onBackPressed();
             }
         });
 

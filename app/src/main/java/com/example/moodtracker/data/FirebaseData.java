@@ -11,104 +11,73 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FirebaseData {
 
-    public FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
-    public String userID = db.collection("users").getId();
+    public FirebaseFirestore db;
+    CollectionReference collectionRef;
+    ArrayList<Journal> journals = new ArrayList<Journal>();
 
-    Map<String, Object> journal1 = new HashMap<>();
+    List<QueryDocumentSnapshot> documents;
 
-    public CollectionReference getColRef() {
-        CollectionReference collectionRef = db.collection("journals");
-        return collectionRef;
+    public FirebaseData(String uid, Date startTime) {
+        db = FirebaseFirestore.getInstance(); // firebase db
+        //String userID = db.collection("users").getId();
+        // find collection for uid
+        collectionRef = db.collection(uid);
+        ApiFuture<QuerySnapshot> future = db.collection(collectionRef).get();
+        documents = future.get().getDocuments();
     }
 
-    public String getKeywords(){
-        CollectionReference collectionRef = getColRef();
-        String TAG = "GET KEYWORDS";
-
-        final String[] result = {""};
-        collectionRef.whereEqualTo("keyWords", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()){
-                        Log.d(TAG, document.getId() + "=>" + document.get("keyWords"));
-                        result[0] = (String) document.get("sentimentScore");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents", task.getException());
-                }
+    /**
+     * Method get keywords with positive mood
+     * @return set of positive keywords
+     */
+    public ArrayList<String> getPosKeywords(){
+        ArrayList<String> keywords = new ArrayList<String>();
+        for (QueryDocumentSnapshot document : documents) {
+            if((Double) document.get("sentiment") > 0) {
+                keywords.add((String) document.get("keyword"));
             }
-        });
-        return result[0];
+        }
+        return keywords;
     }
-    public String getDate(){
-        CollectionReference collectionRef = getColRef();
-        String TAG = "GET DATE";
 
-        final String[] result = {""};
-        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()){
-                        Log.d(TAG, document.getId() + "=>" + document.get("date"));
-                        result[0] = (String) document.get("date");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents", task.getException());
-                }
+    /**
+     * Method get keywords with negative mood
+     * @return set of negative keywords
+     */
+    public ArrayList<String> getNegKeywords(){
+        ArrayList<String> keywords = new ArrayList<String>();
+        for (QueryDocumentSnapshot document : documents) {
+            if((Double) document.get("sentiment") < 0) {
+                keywords.add((String) document.get("keyword"));
             }
-        });
-        return result[0];
+        }
+        return keywords;
     }
 
-
+    /**
+     * Method get tones
+     * @return
+     */
     public String getTones(){
-
-        CollectionReference collectionRef = getColRef();
-        String TAG = "GET TONES";
-
-        final String[] result = {""};
-        collectionRef.whereEqualTo("tones", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()){
-                        Log.d(TAG, document.getId() + "=>" + document.get("tones"));
-                        result[0] = (String) document.get("tones");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents", task.getException());
-                }
-            }
-        });
-        return result[0];
+        ArrayList<String> tones = new ArrayList<String>();
+        for (QueryDocumentSnapshot document : documents) {
+            tones.add((double) document.get("tone"));
+        }
+        return tones;
     }
 
-    public double[] getSentimentScore(){
-        CollectionReference collectionRef = getColRef();
-        String TAG = "GET SENTIMENT SCORE";
-        final double[] result = {0};
-
-        collectionRef.whereEqualTo("sentiment", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()){
-                        Log.d(TAG, document.getId() + "=>" + document.get("sentiment"));
-                        result[0] = (double) document.get("sentiment");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents", task.getException());
-                }
-            }
-        });
-
-        return result;
+    public ArrayList<Double> getSentimentScore() {
+        ArrayList<Double> sentiments = new ArrayList<Double>();
+        for (QueryDocumentSnapshot document : documents) {
+            sentiments.add((double) document.get("sentiment"));
+        }
+        return sentiments;
     }
 }
