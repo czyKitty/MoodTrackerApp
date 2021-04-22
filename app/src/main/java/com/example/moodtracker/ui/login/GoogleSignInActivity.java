@@ -52,6 +52,8 @@ public class GoogleSignInActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_firebase_ui);
+
         // [START config_signin]
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -81,10 +83,9 @@ public class GoogleSignInActivity extends Activity {
                 signOut();
             }
         });
-        // [START initialize_auth]
-        // Initialize Firebase Auth
+
         mAuth = FirebaseAuth.getInstance();
-        // [END initialize_auth]
+
     }
 
     // [START onactivityresult]
