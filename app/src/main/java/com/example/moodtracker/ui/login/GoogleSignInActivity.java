@@ -3,12 +3,14 @@ package com.example.moodtracker.ui.login;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -35,7 +37,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
  */
-public class GoogleSignInActivity extends Activity {
+public class GoogleSignInActivity extends AppCompatActivity {
 
     SignInButton signInButton;
     Button signOutButton;
@@ -60,7 +62,9 @@ public class GoogleSignInActivity extends Activity {
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
+        CharSequence text = "Ready to sign in! ";
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         // [END config_signin]
 
@@ -71,6 +75,8 @@ public class GoogleSignInActivity extends Activity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(context, text, duration).show();
+
                 Log.d(TAG, "i am Logging in");
                 signIn();
             }
