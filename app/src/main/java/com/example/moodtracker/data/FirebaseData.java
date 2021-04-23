@@ -22,16 +22,21 @@ public class FirebaseData {
     public FirebaseFirestore db;
     CollectionReference collectionRef;
     ArrayList<Journal> journals = new ArrayList<Journal>();
+    Task<QuerySnapshot> documents;
 
-    List<QueryDocumentSnapshot> documents;
-
-    public FirebaseData(String uid, Date startTime) {
-        db = FirebaseFirestore.getInstance(); // firebase db
-        //String userID = db.collection("users").getId();
-        // find collection for uid
-        collectionRef = db.collection(uid);
-//        ApiFuture<QuerySnapshot> future = db.collection(collectionRef).get();
-//        documents = future.get().getDocuments();
+    public FirebaseData(Date startTime) {
+//        Date start = new Date('2021-01-01');
+        Date end = new Date();
+        try {
+            Fetch firebase = new Fetch();
+            documents = firebase.FirebaseData(startTime, end);
+//            for (QueryDocumentSnapshot document : documents.getResult()) {
+//                String TAG = "SUCCESS";
+//                Log.d(TAG, document.getId() + " => " + document.getData());
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -40,7 +45,7 @@ public class FirebaseData {
      */
     public ArrayList<String> getPosKeywords(){
         ArrayList<String> keywords = new ArrayList<String>();
-        for (QueryDocumentSnapshot document : documents) {
+        for (QueryDocumentSnapshot document : documents.getResult()) {
             if((Double) document.get("sentiment") > 0) {
                 keywords.add((String) document.get("keyword"));
             }
@@ -54,7 +59,7 @@ public class FirebaseData {
      */
     public ArrayList<String> getNegKeywords(){
         ArrayList<String> keywords = new ArrayList<String>();
-        for (QueryDocumentSnapshot document : documents) {
+        for (QueryDocumentSnapshot document : documents.getResult()) {
             if((Double) document.get("sentiment") < 0) {
                 keywords.add((String) document.get("keyword"));
             }
@@ -76,7 +81,7 @@ public class FirebaseData {
 
     public ArrayList<Double> getSentimentScore() {
         ArrayList<Double> sentiments = new ArrayList<Double>();
-        for (QueryDocumentSnapshot document : documents) {
+        for (QueryDocumentSnapshot document : documents.getResult()) {
             sentiments.add((double) document.get("sentiment"));
         }
         return sentiments;
