@@ -1,6 +1,7 @@
 package com.example.moodtracker.ui.talk;
 
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.moodtracker.R;
+import com.example.moodtracker.ui.track.WordPosActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,6 +49,7 @@ public class TalkFragment extends Fragment {
 
     private TalkViewModel dashboardViewModel;
     Button btnSubmit;
+    Button btnTalk;
     EditText txtJournal;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -64,6 +67,15 @@ public class TalkFragment extends Fragment {
 
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);
+        btnTalk = (Button) root.findViewById(R.id.btn_talk);
+
+        btnTalk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //new intent
+                startActivity(new Intent(getActivity(), SpeechToTextActivity.class));
+            }
+        });
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
