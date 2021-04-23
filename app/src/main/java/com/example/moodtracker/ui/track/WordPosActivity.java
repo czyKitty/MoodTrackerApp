@@ -3,6 +3,7 @@ package com.example.moodtracker.ui.track;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
@@ -38,11 +39,16 @@ public class WordPosActivity extends AppCompatActivity {
 
         TagCloud tagCloud = AnyChart.tagCloud();
 
+        //initialize spinner option.
+        String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        selectTime.setAdapter(adapter);
+
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(WordPosActivity.this, TrackFragment.class));
+                onBackPressed();
             }
         });
 

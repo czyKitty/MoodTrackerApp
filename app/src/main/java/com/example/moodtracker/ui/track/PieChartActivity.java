@@ -1,10 +1,13 @@
 package com.example.moodtracker.ui.track;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.moodtracker.data.FirebaseData;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -19,7 +22,11 @@ import com.anychart.chart.common.listener.ListenersInterface;
 import com.anychart.charts.Pie;
 import com.example.moodtracker.R;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class PieChartActivity extends AppCompatActivity {
@@ -27,6 +34,7 @@ public class PieChartActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
+    Date time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +52,52 @@ public class PieChartActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         selectTime.setAdapter(adapter);
 
+        drawPlot(selectTime.getSelectedItem().toString());
+
+        //spinner change listener
+        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                drawPlot(selectTime.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+
+        });
+
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PieChartActivity.this, TrackFragment.class));
+                onBackPressed();
             }
         });
+
+
+
+    }
+
+    protected void drawPlot(String timeFrame) {
+        //display based on select time
+        if(timeFrame.equals("Past Week")){
+            time = DateUtils.addDays(Calendar.getInstance().getTime(),-7);
+        }else if(timeFrame.equals("Past Month")){
+            time = DateUtils.addDays(Calendar.getInstance().getTime(),-30);
+        }else{
+            time = DateUtils.addDays(Calendar.getInstance().getTime(),-90);
+        }
+
+        SharedPreferences sh = getSharedPreferences("AUTHENTICATION_FILE_NAME", MODE_PRIVATE);
+        String uid = sh.getString("UID", "");
+        FirebaseData firebase = new FirebaseData(uid, time);
+
+        //Read data from database
+        List<DataEntry> data = new ArrayList<>();
+        double[] score = firebase.getSentimentScore();
+        String mood = firebase.getTones();
+        data.add(new ValueDataEntry(mood, score[0]));
 
         Pie pie = AnyChart.pie();
 
@@ -61,10 +108,6 @@ public class PieChartActivity extends AppCompatActivity {
                 Toast.makeText(PieChartActivity.this, event.getData().get("x") + ":" + event.getData().get("value"), Toast.LENGTH_SHORT).show();
             }
         });
-
-        //Read data from database
-        List<DataEntry> data = new ArrayList<>();
-        data.add(new ValueDataEntry("Mood", 123));
 
         // set data
         pie.data(data);
