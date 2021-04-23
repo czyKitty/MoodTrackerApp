@@ -43,14 +43,13 @@ public class TrackFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    Fetch firebase = new Fetch();
-                    Task<QuerySnapshot> documents = firebase.FirebaseData(DateUtils.addDays(Calendar.getInstance().getTime(), -7), new Date());
-                    for (QueryDocumentSnapshot document : documents.getResult()) {
-                        String TAG = "SUCCESS REAL";
-                        Log.d(TAG, document.getId() + " => " + document.getData());
-                        Map<String, Object> temp = document.getData();
-//                        System.out.println(temp.get("sentiment"));
-                    }
+//                    Fetch firebase = new Fetch();
+//                    Task<QuerySnapshot> documents = firebase.FirebaseData(DateUtils.addDays(Calendar.getInstance().getTime(), -7), new Date());
+//                    for (QueryDocumentSnapshot document : documents.getResult()) {
+//                        String TAG = "SUCCESS REAL";
+//                        Log.d(TAG, document.getId() + " => " + document.getData());
+//                        Map<String, Object> temp = document.getData();
+//                    }
                     startActivity(new Intent(getActivity(), LineChartActivity.class));
                 } catch (Exception e) {
                     e.printStackTrace();
