@@ -1,6 +1,6 @@
 package com.example.moodtracker.ui.talk;
 
-import android.icu.text.SimpleDateFormat;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,8 +20,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ibm.cloud.sdk.core.security.Authenticator;
@@ -37,12 +35,8 @@ import com.ibm.watson.tone_analyzer.v3.ToneAnalyzer;
 import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import com.ibm.watson.tone_analyzer.v3.model.ToneOptions;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.example.moodtracker.data.Journal;
+import com.example.moodtracker.data.Journal.Analysis_nlp;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -52,7 +46,6 @@ public class TalkFragment extends Fragment {
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private TalkViewModel dashboardViewModel;
-    private String input;
     Button btnSubmit;
     EditText txtJournal;
 
@@ -63,7 +56,11 @@ public class TalkFragment extends Fragment {
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
-        newEntry("Today was an amazing day for me. I hope tomorrow is good also.");
+//        try {
+//            newEntry("Today went by really fast. I was outdoors most of the day.");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);
@@ -71,70 +68,30 @@ public class TalkFragment extends Fragment {
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                newEntry(txtJournal.getText().toString());
+                try {
+                    newEntry(txtJournal.getText().toString());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         return root;
     }
 
-    public class Journal {
-        public String uid;
-        public Date date;
-        public String text;
-        public AnalysisResults sentiment;
-        public AnalysisResults keywords;
-        public ToneAnalysis tones;
-
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        public Journal(String entry_text) {
-            // ...
-            if (user != null) {
-                uid = user.getUid();
-            }
-            text = entry_text;
-//            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            date = new Date();
-//            String dateString = formatter.format(date);
-            Analysis_nlp out = sentiment(text);
-            sentiment = out.sentiment;
-            keywords = out.keys;
-            tones = out.tone;
-        }
-
-        public Journal(String entry_text, String date) {
-            // ...
-        }
-    }
-//    public class Keywords {
-//        public String uid;
-//        public Map<String, Integer> negative;
-//        public Map<String, Integer> positive;
-//
-//        public Keywords(AnalysisResults keywords, AnalysisResults sentiment) {
-//            // ...
-//            if (user != null) {
-//                uid = user.getUid();
-//            }
-//
-//
-//        }
-//    }
-
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void newEntry(String input) {
-        Journal j = new Journal(input);
+    public void newEntry(String input) throws InterruptedException {
+        Analysis_nlp out = sentiment(input);
+        Journal j = new Journal(input, user, out);
         try {
         db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             private static final String TAG = "SUCCESS";
-
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
             }
         }).addOnFailureListener(new OnFailureListener() {
             private static final String TAG = "ERROR";
-
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG, "Error adding document", e);
@@ -144,19 +101,7 @@ public class TalkFragment extends Fragment {
         }
     }
 
-    static class Analysis_nlp {
-        ToneAnalysis tone;
-        AnalysisResults keys;
-        AnalysisResults sentiment;
-        Analysis_nlp(ToneAnalysis a, AnalysisResults b, AnalysisResults c)
-        {
-            tone = a;
-            keys = b;
-            sentiment = c;
-        }
-    }
-
-    public Analysis_nlp sentiment(String input) {
+    public Analysis_nlp sentiment(String input) throws InterruptedException {
         AtomicReference<ToneAnalysis> tone = new AtomicReference<>(new ToneAnalysis());
         AtomicReference<AnalysisResults> keys = new AtomicReference<>(new AnalysisResults());
         AtomicReference<AnalysisResults> score= new AtomicReference<>(new AnalysisResults());
@@ -171,10 +116,10 @@ public class TalkFragment extends Fragment {
 
 //        Run Network API Call on separate thread
 //        Use separate thread so to not block the UI thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try  {
+        Thread thread = new Thread(){
+            public void run(){
+                System.out.println("Thread Running");
+                try {
                     // Tone Analysis
                     ToneOptions toneOptions = new ToneOptions.Builder()
                             .text(input)
@@ -206,15 +151,21 @@ public class TalkFragment extends Fragment {
                     AnalyzeOptions parameters_2 = new AnalyzeOptions.Builder()
                             .text(input)
                             .features(features_2)
+                            .language("en")
                             .build();
-                    score.set(service_nlp.analyze(parameters_2).execute().getResult());
+                    AnalysisResults response = service_nlp
+                            .analyze(parameters_2)
+                            .execute()
+                            .getResult();
+                    score.set(response);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
-
+        };
+        thread.start();
+        thread.join();
         return new Analysis_nlp(tone.get(), keys.get(), score.get());
     }
 

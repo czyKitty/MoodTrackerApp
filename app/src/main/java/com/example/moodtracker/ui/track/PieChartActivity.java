@@ -95,9 +95,9 @@ public class PieChartActivity extends AppCompatActivity {
 
         //Read data from database
         List<DataEntry> data = new ArrayList<>();
-        double[] score = firebase.getSentimentScore();
-        String mood = firebase.getTones();
-        data.add(new ValueDataEntry(mood, score[0]));
+//        double[] score = firebase.getSentimentScore();
+//        String mood = firebase.getTones();
+//        data.add(new ValueDataEntry(mood, score[0]));
 
         Pie pie = AnyChart.pie();
 
