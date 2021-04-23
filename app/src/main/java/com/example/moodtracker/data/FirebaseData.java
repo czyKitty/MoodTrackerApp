@@ -30,8 +30,8 @@ public class FirebaseData {
         //String userID = db.collection("users").getId();
         // find collection for uid
         collectionRef = db.collection(uid);
-        ApiFuture<QuerySnapshot> future = db.collection(collectionRef).get();
-        documents = future.get().getDocuments();
+//        ApiFuture<QuerySnapshot> future = db.collection(collectionRef).get();
+//        documents = future.get().getDocuments();
     }
 
     /**
@@ -66,13 +66,13 @@ public class FirebaseData {
      * Method get tones
      * @return
      */
-    public String getTones(){
-        ArrayList<String> tones = new ArrayList<String>();
-        for (QueryDocumentSnapshot document : documents) {
-            tones.add((double) document.get("tone"));
-        }
-        return tones;
-    }
+//    public String getTones(){
+//        ArrayList<String> tones = new ArrayList<String>();
+//        for (QueryDocumentSnapshot document : documents) {
+//            tones.add((double) document.get("tone"));
+//        }
+//        return tones;
+//    }
 
     public ArrayList<Double> getSentimentScore() {
         ArrayList<Double> sentiments = new ArrayList<Double>();

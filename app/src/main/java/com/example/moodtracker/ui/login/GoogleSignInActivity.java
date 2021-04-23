@@ -14,7 +14,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.moodtracker.MainActivity;
 import com.example.moodtracker.R;
+import com.example.moodtracker.ui.home.HomeFragment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -109,6 +111,8 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account.getIdToken());
                 GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
                 handleSignInResult(result);
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);

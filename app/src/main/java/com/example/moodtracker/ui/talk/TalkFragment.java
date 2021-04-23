@@ -1,8 +1,6 @@
 package com.example.moodtracker.ui.talk;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.icu.text.SimpleDateFormat;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -21,8 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.moodtracker.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ibm.cloud.sdk.core.security.Authenticator;
@@ -38,94 +35,138 @@ import com.ibm.watson.tone_analyzer.v3.ToneAnalyzer;
 import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import com.ibm.watson.tone_analyzer.v3.model.ToneOptions;
 
-import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.example.moodtracker.data.Journal;
+import com.example.moodtracker.data.Journal.Analysis_nlp;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.example.moodtracker.data.Journal;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class TalkFragment extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-    private String input;
-    Button btnTalk, btnSubmit;
+    private TalkViewModel dashboardViewModel;
+    Button btnSubmit;
     EditText txtJournal;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View talkView = inflater.inflate(R.layout.fragment_talk, container, false);
-        // define view component
-        // btnTalk = (Button) talkView.findViewById(R.id.btnTalk);
-        btnSubmit = (Button) talkView.findViewById(R.id.submitEntry);
-        txtJournal = (EditText) talkView.findViewById(R.id.txt_talk);
+        dashboardViewModel =
+                new ViewModelProvider(this).get(TalkViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_talk, container, false);
+        //Test
+//        try {
+//            newEntry("Today went by really fast. I was outdoors most of the day.");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
-        // when click talk button, use google speech to text
+        btnSubmit = (Button) root.findViewById(R.id.submitEntry);
+        txtJournal = (EditText) root.findViewById(R.id.txt_talk);
 
-        // when click submit button, add entry to firebase
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // get uid from preference
-                SharedPreferences sh = getActivity().getSharedPreferences("AUTHENTICATION_FILE_NAME", MODE_PRIVATE);
-                String uid = sh.getString("UID","");
-
-                //storeJournal("123", txtJournal.getText().toString());
-                storeJournal(uid,"Today was an amazing day for me. I hope tomorrow is good also.");
-                Toast toast=Toast.makeText(getActivity().getApplicationContext(),"SUCCESSFULLY ADDED JOURNALS",Toast.LENGTH_SHORT);
-                toast.show();
+                try {
+                    newEntry(txtJournal.getText().toString());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
-        return talkView;
+
+        return root;
     }
 
-    /**
-     * @param uid: unique id for user
-     * @param input: journal entry
-     */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void storeJournal(String uid, String input) {
+    public void newEntry(String input) throws InterruptedException {
+        Analysis_nlp out = sentiment(input);
+        Journal j = new Journal(input, user, out);
         try {
-            // add new document to collection "uid"
-            db.collection(uid).document(Calendar.getInstance().getTime()).add(createEntry(input)).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                private static final String TAG = "SUCCESS";
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                private static final String TAG = "ERROR";
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                   Log.w(TAG, "Error adding document", e);
-                }
-            });
-        } catch (Exception e){
+        db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            private static final String TAG = "SUCCESS";
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            private static final String TAG = "ERROR";
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error adding document", e);
+            }
+        }); } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    /**
-     *
-     * @param input: single journal text
-     * @return journal entry to store in firebase
-     */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private Map<String, Object> createEntry(String input){
-        Map<String, Object> journal = new HashMap<>();
-        Journal j = new Journal(input);
-        journal.put("journal", j); // original journal text
-        journal.put("sentiment", j.getSentiment()); // sentiment score of text
-        journal.put("keyword", j.getKeyword()); // keyword of the text
-        journal.put("tone", j.getTone()); // tone of the text
+    public Analysis_nlp sentiment(String input) throws InterruptedException {
+        AtomicReference<ToneAnalysis> tone = new AtomicReference<>(new ToneAnalysis());
+        AtomicReference<AnalysisResults> keys = new AtomicReference<>(new AnalysisResults());
+        AtomicReference<AnalysisResults> score= new AtomicReference<>(new AnalysisResults());
+        //        Authenticate the API
+        Authenticator authenticator = new IamAuthenticator("ZaupUklyab6ixv-73XYreQZLWOAfYv85DnjxUyklz4ry");
+        ToneAnalyzer service = new ToneAnalyzer("2017-09-21", authenticator);
+        service.setServiceUrl("https://api.us-east.tone-analyzer.watson.cloud.ibm.com/instances/c2f34cbf-a90a-4785-88d8-a41c0a08ac8c");
 
-        return journal;
+        Authenticator authenticator_nlp = new IamAuthenticator("SO_Deq8xw8V3uT1inqIAqzyMi2c7ku4OBhcwg97Nb5f6");
+        NaturalLanguageUnderstanding service_nlp = new NaturalLanguageUnderstanding("2019-07-12", authenticator_nlp);
+        service_nlp.setServiceUrl("https://api.us-east.natural-language-understanding.watson.cloud.ibm.com/instances/4dd4583a-125a-47b2-bec8-4bf171ffca01");
+
+//        Run Network API Call on separate thread
+//        Use separate thread so to not block the UI thread
+        Thread thread = new Thread(){
+            public void run(){
+                System.out.println("Thread Running");
+                try {
+                    // Tone Analysis
+                    ToneOptions toneOptions = new ToneOptions.Builder()
+                            .text(input)
+                            .build();
+                    tone.set(service.tone(toneOptions).execute().getResult());
+
+                    // Keyword Analysis
+                    KeywordsOptions keywords = new KeywordsOptions.Builder()
+                            .sentiment(true)
+                            .emotion(true)
+                            .limit(3)
+                            .build();
+                    Features features = new Features.Builder()
+                            .keywords(keywords)
+                            .build();
+                    AnalyzeOptions parameters = new AnalyzeOptions.Builder()
+                            .text(input)
+                            .features(features)
+                            .build();
+                    keys.set(service_nlp.analyze(parameters).execute().getResult());
+
+                    // General Sentiment Analysis
+                    SentimentOptions sentiment = new SentimentOptions.Builder()
+                            .document(true)
+                            .build();
+                    Features features_2 = new Features.Builder()
+                            .sentiment(sentiment)
+                            .build();
+                    AnalyzeOptions parameters_2 = new AnalyzeOptions.Builder()
+                            .text(input)
+                            .features(features_2)
+                            .language("en")
+                            .build();
+                    AnalysisResults response = service_nlp
+                            .analyze(parameters_2)
+                            .execute()
+                            .getResult();
+                    score.set(response);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+        thread.join();
+        return new Analysis_nlp(tone.get(), keys.get(), score.get());
     }
+
 }
