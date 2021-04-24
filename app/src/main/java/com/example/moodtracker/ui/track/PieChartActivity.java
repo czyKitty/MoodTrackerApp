@@ -91,7 +91,7 @@ public class PieChartActivity extends AppCompatActivity {
 
         SharedPreferences sh = getSharedPreferences("AUTHENTICATION_FILE_NAME", MODE_PRIVATE);
         String uid = sh.getString("UID", "");
-        FirebaseData firebase = new FirebaseData(time);
+        FirebaseData firebase = new FirebaseData(time, new Date());
 
         //Read data from database
         List<DataEntry> data = new ArrayList<>();

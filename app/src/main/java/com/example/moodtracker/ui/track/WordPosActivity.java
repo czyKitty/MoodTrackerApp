@@ -2,6 +2,7 @@ package com.example.moodtracker.ui.track;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -16,20 +17,31 @@ import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.charts.TagCloud;
 import com.anychart.scales.OrdinalColor;
 import com.example.moodtracker.R;
+import com.example.moodtracker.data.FirebaseData;
+
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class WordPosActivity extends AppCompatActivity {
 
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
+    FirebaseData fetch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
+        Bundle extras = getIntent().getExtras();
+        ArrayList<String> keys =extras.getStringArrayList("keywords");
+        System.out.println(keys);
+
 
         //define view variables
         anyChartView = findViewById(R.id.chartView);
@@ -67,8 +79,13 @@ public class WordPosActivity extends AppCompatActivity {
         tagCloud.colorRange().colorLineSize(15d);
 
         // add data
+//        ArrayList<String> keys = fetch.keywords;
         List<DataEntry> data = new ArrayList<>();
-        data.add(new CategoryValueDataEntry("China", "asia", 1383220000));
+//        data.add(new CategoryValueDataEntry("China", "asia", 1383220000));
+        for (String temp : keys) {
+            data.add(new CategoryValueDataEntry(temp,"positive", 1));
+        }
+
 
         // place data into chart
         tagCloud.data(data);

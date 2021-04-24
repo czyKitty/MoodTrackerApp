@@ -14,6 +14,7 @@ import com.example.moodtracker.R;
 import com.example.moodtracker.data.Fetch;
 import com.example.moodtracker.data.FirebaseData;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -23,6 +24,7 @@ import java.security.spec.ECField;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class TrackFragment extends Fragment {
 
@@ -43,13 +45,6 @@ public class TrackFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-//                    Fetch firebase = new Fetch();
-//                    Task<QuerySnapshot> documents = firebase.FirebaseData(DateUtils.addDays(Calendar.getInstance().getTime(), -7), new Date());
-//                    for (QueryDocumentSnapshot document : documents.getResult()) {
-//                        String TAG = "SUCCESS REAL";
-//                        Log.d(TAG, document.getId() + " => " + document.getData());
-//                        Map<String, Object> temp = document.getData();
-//                    }
                     startActivity(new Intent(getActivity(), LineChartActivity.class));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -67,7 +62,13 @@ public class TrackFragment extends Fragment {
         btn_wordPos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getActivity(), WordPosActivity.class));
+//                startActivity(new Intent(getActivity(), WordPosActivity.class));
+                FirebaseData fetch = new FirebaseData(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date());
+                try {
+                    fetch.getPosKeywords(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
