@@ -59,11 +59,11 @@ public class TalkFragment extends Fragment {
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
-//        try {
-//            newEntry("Today went by really fast. I was outdoors most of the day.");
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            newEntry("I hope I can see my friends today. The weather is really nice.");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);

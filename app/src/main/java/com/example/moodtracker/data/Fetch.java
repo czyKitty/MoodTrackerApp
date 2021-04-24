@@ -18,7 +18,6 @@ public class Fetch {
 
     public FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
     public FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-    public Task<QuerySnapshot> docs;
 
     public Task<QuerySnapshot> FirebaseData(Date start, Date end) {
         db = FirebaseFirestore.getInstance(); // firebase db
