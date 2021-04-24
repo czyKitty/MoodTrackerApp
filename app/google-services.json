@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "120295508569-e9a0goe9qnt05355a0rjs3edlopdii47.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moodtracker",
+            "certificate_hash": "88711f3350c5c3e954ee46a5a67ac61c8a06fd21"
+          }
+        },
+        {
+          "client_id": "120295508569-gdihvkpq0gsd45916b5k7d8um325ut91.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moodtracker",
+            "certificate_hash": "f25133ef79e9f4bc0600157e0563f1443827d158"
+          }
+        },
+        {
           "client_id": "120295508569-f7o11oqs310s313t0350c4erhaiflpjp.apps.googleusercontent.com",
           "client_type": 3
         }
