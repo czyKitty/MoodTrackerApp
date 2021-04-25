@@ -198,7 +198,12 @@ public class FirebaseData {
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
                                     // if statement here
-                                    keywords.add((String) map.get("text"));
+
+                                    HashMap sentimentMap = (HashMap) map.get("sentiment");
+                                    Double score = new Double ((sentimentMap.get("score")).toString());
+                                    if (score > 0) {
+                                        keywords.add((String) map.get("text"));
+                                    }
                                 }
                             }
                             System.out.println("Thread Finished");
@@ -247,9 +252,12 @@ public class FirebaseData {
                                 Iterator iter = keys.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
-
-                                    // if statement here
-                                    keywords.add((String) map.get("text"));
+                                    HashMap sentimentMap = (HashMap) map.get("sentiment");
+                                    Double score = new Double ((sentimentMap.get("score")).toString());
+                                    if (score< 0 ){
+                                        // if statement here
+                                        keywords.add((String) map.get("text"));
+                                    }
                                 }
                             }
                             System.out.println("Thread Finished");
