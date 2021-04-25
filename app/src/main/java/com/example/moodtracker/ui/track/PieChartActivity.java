@@ -1,6 +1,8 @@
 package com.example.moodtracker.ui.track;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.anychart.chart.common.dataentry.CategoryValueDataEntry;
 import com.example.moodtracker.data.FirebaseData;
 
 import android.content.Intent;
@@ -40,6 +42,9 @@ public class PieChartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
+        Bundle extras = getIntent().getExtras();
+
+        ArrayList<String> tone =extras.getStringArrayList("tones");
 
         //define view variables
         anyChartView = findViewById(R.id.chartView);

@@ -75,7 +75,13 @@ public class TrackFragment extends Fragment {
         btn_wordNeg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getActivity(), WordNegActivity.class));
+                FirebaseData fetch = new FirebaseData(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date());
+
+                try {
+                    fetch.getNegKeywords(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
