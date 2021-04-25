@@ -13,6 +13,7 @@ import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import java.util.Date;
 import java.util.List;
 
+
 public class Journal {
     public String uid;
     public Date date;
@@ -20,6 +21,9 @@ public class Journal {
     public SentimentResult sentiment;
     public List<KeywordsResult> keywords;
     public DocumentAnalysis tones;
+
+    public Journal(){
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public Journal(String input, FirebaseUser user, Analysis_nlp out) {
@@ -42,5 +46,22 @@ public class Journal {
             keys = b;
             sentiment = c;
         }
+    }
+
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }
