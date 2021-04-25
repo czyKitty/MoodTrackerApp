@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 public class HomeFragment extends Fragment {
 
@@ -55,13 +56,14 @@ public class HomeFragment extends Fragment {
         // Class provided by the FirebaseUI to make a query in the database to fetch appropriate data
         FirestoreRecyclerOptions<Journal> options
                 = new FirestoreRecyclerOptions.Builder<Journal>()
-                .setQuery(collectionReference.whereEqualTo("uid", user.getUid()), Journal.class)
+                .setQuery(collectionReference.whereEqualTo("uid", user.getUid()).orderBy("date", Query.Direction.DESCENDING), Journal.class)
                 .build();
         // Connecting object of required Adapter class to the Adapter class itself
         adapter = new JournalAdapter(options);
         // Connecting Adapter class with the Recycler view
         recyclerView.setAdapter(adapter);
     }
+
 
     // Function to tell the app to start getting data from database on starting of the activity
     @Override public void onStart()

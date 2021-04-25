@@ -1,6 +1,7 @@
 package com.example.moodtracker.ui.talk;
 
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -21,10 +23,9 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.moodtracker.R;
 import com.example.moodtracker.data.Journal;
 import com.example.moodtracker.data.Journal.Analysis_nlp;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -84,11 +85,11 @@ public class TalkFragment extends Fragment {
                 new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
-        try {
-            newEntry("I hope I can see my friends today. The weather is really nice.");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            newEntry("I hope I can see my friends today. The weather is really nice.");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         btnSubmit = (Button) root.findViewById(R.id.submitEntry);
         txtJournal = (EditText) root.findViewById(R.id.txt_talk);
@@ -116,13 +117,35 @@ public class TalkFragment extends Fragment {
             public void onClick(View v) {
                 try {
                     newEntry(txtJournal.getText().toString());
+                    //startActivity(new Intent(getActivity(), HomeFragment.class));
+                    //getFragmentManager().beginTransaction().replace(R.id.recycler1, new HomeFragment()).addToBackStack(null).commit();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+//                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+//                fragmentTransaction.replace(R.id.nav_host_fragment, new HomeFragment());
+//                fragmentTransaction.commit();
+
+                BottomNavigationView bnav = (BottomNavigationView)getActivity().findViewById(R.id.nav_view);
+                bnav.setSelectedItemId(R.id.navigation_home);
+                hideKeyboard();
+
             }
         });
-
         return root;
+    }
+
+    private void hideKeyboard(){
+        // hide keyboard
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = getActivity().getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(getContext());
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -130,12 +153,7 @@ public class TalkFragment extends Fragment {
         Analysis_nlp out = sentiment(input);
         Journal j = new Journal(input, user, out);
         try {
-            db.collection("journals").document().set(j).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    System.out.println("Saved");
-                }
-            });
+
             db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 private static final String TAG = "SUCCESS";
                 @Override
