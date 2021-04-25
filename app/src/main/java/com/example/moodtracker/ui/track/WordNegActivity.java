@@ -16,6 +16,7 @@ import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.charts.TagCloud;
 import com.anychart.scales.OrdinalColor;
 import com.example.moodtracker.R;
+import com.example.moodtracker.data.FirebaseData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +26,16 @@ public class WordNegActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
+    FirebaseData fetch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
+        Bundle extras = getIntent().getExtras();
+
+        ArrayList<String> keys =extras.getStringArrayList("keywords");
 
         //define view variables
         anyChartView = findViewById(R.id.chartView);
@@ -68,8 +74,11 @@ public class WordNegActivity extends AppCompatActivity {
 
         // add data
         List<DataEntry> data = new ArrayList<>();
-        data.add(new CategoryValueDataEntry("China", "asia", 1383220000));
+//        data.add(new CategoryValueDataEntry("China", "asia", 1383220000));
 
+        for (String temp : keys) {
+            data.add(new CategoryValueDataEntry(temp,"negative", 1));
+        }
         // place data into chart
         tagCloud.data(data);
 
