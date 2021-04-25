@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.example.moodtracker.MainActivity;
+import com.example.moodtracker.ui.home.HomeFragment;
 import com.example.moodtracker.ui.track.PieChartActivity;
 import com.example.moodtracker.ui.track.WordNegActivity;
 import com.example.moodtracker.ui.track.WordPosActivity;
@@ -103,7 +104,7 @@ public class FirebaseData {
                                 }
                             }
                             System.out.println("Thread Finished");
-                            Intent intent = new Intent(activity, WordPosActivity.class);
+                            Intent intent = new Intent(activity, HomeFragment.class);
                             Bundle b = new Bundle();
                             b.putStringArrayList("texts", texts);
                             intent.putExtras(b);
@@ -150,7 +151,7 @@ public class FirebaseData {
                                 }
                             }
                             System.out.println("Thread Finished");
-                            Intent intent = new Intent(activity, MainActivity.class);
+                            Intent intent = new Intent(activity, HomeFragment.class);
                             Bundle b = new Bundle();
                             b.putStringArrayList("dates", date);
                             intent.putExtras(b);

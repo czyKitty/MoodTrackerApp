@@ -16,6 +16,7 @@ import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.charts.TagCloud;
 import com.anychart.scales.OrdinalColor;
 import com.example.moodtracker.R;
+import com.example.moodtracker.data.FirebaseData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,8 @@ public class WordNegActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
+    FirebaseData fetch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
