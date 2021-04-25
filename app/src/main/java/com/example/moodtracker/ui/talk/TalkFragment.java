@@ -17,16 +17,18 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.moodtracker.R;
-import com.example.moodtracker.ui.track.WordPosActivity;
+import com.example.moodtracker.data.Journal;
+import com.example.moodtracker.data.Journal.Analysis_nlp;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
-
 import com.ibm.watson.natural_language_understanding.v1.NaturalLanguageUnderstanding;
 import com.ibm.watson.natural_language_understanding.v1.model.AnalysisResults;
 import com.ibm.watson.natural_language_understanding.v1.model.AnalyzeOptions;
@@ -37,8 +39,6 @@ import com.ibm.watson.tone_analyzer.v3.ToneAnalyzer;
 import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import com.ibm.watson.tone_analyzer.v3.model.ToneOptions;
 
-import com.example.moodtracker.data.Journal;
-import com.example.moodtracker.data.Journal.Analysis_nlp;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -96,6 +96,12 @@ public class TalkFragment extends Fragment {
         Analysis_nlp out = sentiment(input);
         Journal j = new Journal(input, user, out);
         try {
+            db.collection("journals").document().set(j).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    System.out.println("Saved");
+                }
+            });
         db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             private static final String TAG = "SUCCESS";
             @Override

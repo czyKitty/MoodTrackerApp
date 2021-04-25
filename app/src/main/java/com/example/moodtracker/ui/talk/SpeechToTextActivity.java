@@ -1,12 +1,13 @@
 package com.example.moodtracker.ui.talk;
 
 import android.content.ActivityNotFoundException;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import android.content.Intent;
+import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.widget.EditText;
 import android.view.View;
+import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.moodtracker.R;
 
@@ -15,13 +16,13 @@ import java.util.ArrayList;
 public class SpeechToTextActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 100;
-    private EditText textOutput;
+    private EditText txtJournal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        textOutput = (EditText) findViewById(R.id.txt_talk);
+        setContentView(R.layout.fragment_talk);
+        txtJournal = (EditText) findViewById(R.id.txt_talk);
     }
 
     public void onClick(View v)
@@ -48,7 +49,7 @@ public class SpeechToTextActivity extends AppCompatActivity {
                     //returns an ArrayList of String through the intent
                     //The array contains possible interpretations of what the user said into the microphone
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    textOutput.setText(result.get(0));
+                    txtJournal.setText(result.get(0));
                 }
                 break;
             }

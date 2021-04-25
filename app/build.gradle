@@ -53,6 +53,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
+    implementation 'com.firebaseui:firebase-ui-firestore:6.4.0'
     // Import the Firebase BoM
     implementation 'com.google.firebase:firebase-database:19.3.0'
     implementation platform('com.google.firebase:firebase-bom:27.0.0')
@@ -62,6 +63,6 @@ dependencies {
     // Declare the dependencies for Firebase Authentication and Cloud Firestore
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
+    implementation 'androidx.paging:paging-runtime:2.1.2'
 
 }

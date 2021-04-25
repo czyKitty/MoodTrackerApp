@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "120295508569-hea1d6qg0smbsuefhfqcvs6df87ni0jb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moodtracker",
+            "certificate_hash": "d34880012670814a6ba71953accd297ac5e3ead6"
+          }
+        },
+        {
           "client_id": "120295508569-f7o11oqs310s313t0350c4erhaiflpjp.apps.googleusercontent.com",
           "client_type": 3
         }
