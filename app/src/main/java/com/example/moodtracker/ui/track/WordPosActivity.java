@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,10 +40,6 @@ public class WordPosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
-        Bundle extras = getIntent().getExtras();
-        ArrayList<String> keys = extras.getStringArrayList("keywords");
-        System.out.println(keys);
-
 
         //define view variables
         anyChartView = findViewById(R.id.chartView);
@@ -49,13 +47,25 @@ public class WordPosActivity extends AppCompatActivity {
         btnBack = (ImageButton)findViewById(R.id.btn_back);
         selectTime = (Spinner)findViewById(R.id.select_time);
 
-        TagCloud tagCloud = AnyChart.tagCloud();
-
         //initialize spinner option.
         String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         selectTime.setAdapter(adapter);
 
+        drawPlot(selectTime.getSelectedItem().toString());
+
+        //spinner change listener
+        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                drawPlot(selectTime.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+        });
+        
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,8 +74,40 @@ public class WordPosActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+    public void drawPlot(String timeFrame){
+        Calendar cal = Calendar.getInstance();
+        Date endDate = cal.getTime();
+        Date startDate;
+        if(timeFrame.equals("Past Week")){
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            startDate = cal.getTime();
+        }else if (timeFrame.equals("Past Month")){
+            cal.add(Calendar.MONTH, -1);
+            startDate = cal.getTime();
+        }else{
+            cal.add(Calendar.MONTH, -3);
+            startDate = cal.getTime();
+        }
+
+        FirebaseData data = new FirebaseData(startDate, endDate);
+        // initialize data
+        List<DataEntry> seriesData = new ArrayList<>();
+        try {
+            ArrayList<String> keys = data.getData(startDate, endDate, "key");
+            // get each tones and number of appearance
+            for(String key: keys){
+                seriesData.add(new CategoryValueDataEntry(key, "negative", Collections.frequency(keys, key)));
+            }
+        } catch (Exception e) {
+            Log.d("ERROR", "Extract Data Failed ");
+        }
+
         // Define title of the plot
-        tagCloud.title("World Population");
+        TagCloud tagCloud = AnyChart.tagCloud();
+        tagCloud.title("Key Terms for negative Mood");
 
         // settings
         OrdinalColor ordinalColor = OrdinalColor.instantiate();
@@ -78,17 +120,8 @@ public class WordPosActivity extends AppCompatActivity {
         tagCloud.colorRange().enabled(true);
         tagCloud.colorRange().colorLineSize(15d);
 
-        // add data
-//        ArrayList<String> keys = fetch.keywords;
-        List<DataEntry> data = new ArrayList<>();
-//        data.add(new CategoryValueDataEntry("China", "asia", 1383220000));
-        for (String temp : keys) {
-            data.add(new CategoryValueDataEntry(temp,"positive", 1));
-        }
-
-
         // place data into chart
-        tagCloud.data(data);
+        tagCloud.data(seriesData);
 
         // place chart to view
         anyChartView.setChart(tagCloud);

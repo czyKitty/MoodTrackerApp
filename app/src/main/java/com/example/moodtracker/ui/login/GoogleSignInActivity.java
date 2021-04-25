@@ -54,14 +54,12 @@ public class GoogleSignInActivity extends AppCompatActivity {
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         CharSequence text = "Ready to sign in! ";
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
         statusTextView = (TextView) findViewById(R.id.statusTextView);
         statusTextView.setText("ready to sign in ");
 
@@ -93,7 +91,6 @@ public class GoogleSignInActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -102,8 +99,7 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
-                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-                handleSignInResult(result);
+                handleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
                 startActivity(new Intent(this, MainActivity.class));
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately

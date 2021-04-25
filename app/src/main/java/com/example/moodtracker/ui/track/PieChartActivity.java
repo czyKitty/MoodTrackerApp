@@ -8,6 +8,7 @@ import com.example.moodtracker.data.FirebaseData;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +38,6 @@ public class PieChartActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
-    Date time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +70,6 @@ public class PieChartActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
             }
-
         });
 
         //back to track page
@@ -85,24 +85,33 @@ public class PieChartActivity extends AppCompatActivity {
     }
 
     protected void drawPlot(String timeFrame) {
-        //display based on select time
+        Calendar cal = Calendar.getInstance();
+        Date endDate = cal.getTime();
+        Date startDate;
         if(timeFrame.equals("Past Week")){
-            time = DateUtils.addDays(Calendar.getInstance().getTime(),-7);
-        }else if(timeFrame.equals("Past Month")){
-            time = DateUtils.addDays(Calendar.getInstance().getTime(),-30);
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            startDate = cal.getTime();
+        }else if (timeFrame.equals("Past Month")){
+            cal.add(Calendar.MONTH, -1);
+            startDate = cal.getTime();
         }else{
-            time = DateUtils.addDays(Calendar.getInstance().getTime(),-90);
+            cal.add(Calendar.MONTH, -3);
+            startDate = cal.getTime();
         }
 
-        SharedPreferences sh = getSharedPreferences("AUTHENTICATION_FILE_NAME", MODE_PRIVATE);
-        String uid = sh.getString("UID", "");
-        FirebaseData firebase = new FirebaseData(time, new Date());
+        FirebaseData data = new FirebaseData(startDate, endDate);
+        // initialize data
+        List<DataEntry> seriesData = new ArrayList<>();
+        try {
+            ArrayList<String> tones = data.getData(startDate, endDate, "tone");
+            // get each tones and number of appearance
+            for(String tone: tones){
+                seriesData.add(new ValueDataEntry(tone, Collections.frequency(tones, tone)));
+            }
+        } catch (Exception e) {
+            Log.d("ERROR", "Extract Data Failed ");
+        }
 
-        //Read data from database
-        List<DataEntry> data = new ArrayList<>();
-//        double[] score = firebase.getSentimentScore();
-//        String mood = firebase.getTones();
-//        data.add(new ValueDataEntry(mood, score[0]));
 
         Pie pie = AnyChart.pie();
 
@@ -115,7 +124,7 @@ public class PieChartActivity extends AppCompatActivity {
         });
 
         // set data
-        pie.data(data);
+        pie.data(seriesData);
 
         // place to view
         anyChartView.setChart(pie);
