@@ -1,9 +1,11 @@
 package com.example.moodtracker.ui.talk;
 
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,11 +41,16 @@ import com.ibm.watson.tone_analyzer.v3.ToneAnalyzer;
 import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import com.ibm.watson.tone_analyzer.v3.model.ToneOptions;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class TalkFragment extends Fragment {
 
+
+    private static final int REQUEST_CODE = 100;
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -51,6 +58,24 @@ public class TalkFragment extends Fragment {
     Button btnSubmit;
     Button btnTalk;
     EditText txtJournal;
+
+    //Handle the results
+    @Override
+    //onActivityResult is called when the activity called by startActivityForResult is done
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE: {
+                if (resultCode == RESULT_OK && null != data) {
+                    //returns an ArrayList of String through the intent
+                    //The array contains possible interpretations of what the user said into the microphone
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    txtJournal.setText(result.get(0));
+                }
+                break;
+            }
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -73,7 +98,16 @@ public class TalkFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //new intent
-                startActivity(new Intent(getActivity(), SpeechToTextActivity.class));
+                //startActivity(new Intent(getActivity(), SpeechToTextActivity.class));
+                //Create an Intent with “RecognizerIntent.ACTION_RECOGNIZE_SPEECH” action
+                //ACTION_RECOGNIZE_SPEECH starts an activity that will prompt user for speech and send through a speech recognizer
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                try {
+                    //Start the Activity and wait for the response
+                    //startActivityForResult is called in order to receive something from the activity
+                    startActivityForResult(intent, REQUEST_CODE);
+                } catch (ActivityNotFoundException a) {
+                }
             }
         });
 
