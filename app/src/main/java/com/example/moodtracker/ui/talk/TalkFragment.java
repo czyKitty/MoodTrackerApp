@@ -1,9 +1,11 @@
 package com.example.moodtracker.ui.talk;
 
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,16 +19,18 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.moodtracker.R;
-import com.example.moodtracker.ui.track.WordPosActivity;
+import com.example.moodtracker.data.Journal;
+import com.example.moodtracker.data.Journal.Analysis_nlp;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ibm.cloud.sdk.core.security.Authenticator;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
-
 import com.ibm.watson.natural_language_understanding.v1.NaturalLanguageUnderstanding;
 import com.ibm.watson.natural_language_understanding.v1.model.AnalysisResults;
 import com.ibm.watson.natural_language_understanding.v1.model.AnalyzeOptions;
@@ -37,13 +41,16 @@ import com.ibm.watson.tone_analyzer.v3.ToneAnalyzer;
 import com.ibm.watson.tone_analyzer.v3.model.ToneAnalysis;
 import com.ibm.watson.tone_analyzer.v3.model.ToneOptions;
 
-import com.example.moodtracker.data.Journal;
-import com.example.moodtracker.data.Journal.Analysis_nlp;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class TalkFragment extends Fragment {
 
+
+    private static final int REQUEST_CODE = 100;
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -51,6 +58,24 @@ public class TalkFragment extends Fragment {
     Button btnSubmit;
     Button btnTalk;
     EditText txtJournal;
+
+    //Handle the results
+    @Override
+    //onActivityResult is called when the activity called by startActivityForResult is done
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE: {
+                if (resultCode == RESULT_OK && null != data) {
+                    //returns an ArrayList of String through the intent
+                    //The array contains possible interpretations of what the user said into the microphone
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    txtJournal.setText(result.get(0));
+                }
+                break;
+            }
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -73,7 +98,16 @@ public class TalkFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //new intent
-                startActivity(new Intent(getActivity(), SpeechToTextActivity.class));
+                //startActivity(new Intent(getActivity(), SpeechToTextActivity.class));
+                //Create an Intent with “RecognizerIntent.ACTION_RECOGNIZE_SPEECH” action
+                //ACTION_RECOGNIZE_SPEECH starts an activity that will prompt user for speech and send through a speech recognizer
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                try {
+                    //Start the Activity and wait for the response
+                    //startActivityForResult is called in order to receive something from the activity
+                    startActivityForResult(intent, REQUEST_CODE);
+                } catch (ActivityNotFoundException a) {
+                }
             }
         });
 
@@ -96,19 +130,25 @@ public class TalkFragment extends Fragment {
         Analysis_nlp out = sentiment(input);
         Journal j = new Journal(input, user, out);
         try {
-        db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            private static final String TAG = "SUCCESS";
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            private static final String TAG = "ERROR";
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error adding document", e);
-            }
-        }); } catch (Exception e){
+            db.collection("journals").document().set(j).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    System.out.println("Saved");
+                }
+            });
+            db.collection("journals").add(j).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                private static final String TAG = "SUCCESS";
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    Log.d(TAG, "DocumentSnapshot Added with ID: " + documentReference.getId());
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                private static final String TAG = "ERROR";
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG, "Error adding document", e);
+                }
+            }); } catch (Exception e){
             e.printStackTrace();
         }
     }
