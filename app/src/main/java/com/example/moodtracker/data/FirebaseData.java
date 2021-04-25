@@ -100,7 +100,7 @@ public class FirebaseData {
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
                                     // if statement here
-                                    texts.add((String) map.get("text"));
+                                    texts.add(map.toString());
                                 }
                             }
                             System.out.println("Thread Finished");
@@ -147,7 +147,7 @@ public class FirebaseData {
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
                                     // if statement here
-                                    date.add((String) map.get("date"));
+                                    date.add(map.toString());
                                 }
                             }
                             System.out.println("Thread Finished");
