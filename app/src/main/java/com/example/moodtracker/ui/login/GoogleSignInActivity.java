@@ -36,7 +36,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class GoogleSignInActivity extends AppCompatActivity {
 
     SignInButton signInButton;
-    Button signOutButton;
+    //Button signOutButton;
     TextView statusTextView;
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -52,7 +52,6 @@ public class GoogleSignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_firebase_ui);
 
-        // [START config_signin]
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -62,7 +61,6 @@ public class GoogleSignInActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        // [END config_signin]
 
         statusTextView = (TextView) findViewById(R.id.statusTextView);
         statusTextView.setText("ready to sign in ");
@@ -72,12 +70,12 @@ public class GoogleSignInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, text, duration).show();
-
                 Log.d(TAG, "i am Logging in");
                 signIn();
             }
         });
-        signOutButton = (Button) findViewById(R.id.signOutButton);
+        //signOutButton = (Button) findViewById(R.id.signOutButton);
+        /*
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,6 +83,7 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 signOut();
             }
         });
+        */
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -105,8 +104,7 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(account.getIdToken());
                 GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
                 handleSignInResult(result);
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, MainActivity.class));
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
@@ -114,7 +112,6 @@ public class GoogleSignInActivity extends AppCompatActivity {
         }
 
     }
-    // [END onactivityresult]
 
     // [START auth_with_google]
     private void firebaseAuthWithGoogle(String idToken) {

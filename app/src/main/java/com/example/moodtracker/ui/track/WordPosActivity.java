@@ -39,7 +39,7 @@ public class WordPosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
         Bundle extras = getIntent().getExtras();
-        ArrayList<String> keys =extras.getStringArrayList("keywords");
+        ArrayList<String> keys = extras.getStringArrayList("keywords");
         System.out.println(keys);
 
 

@@ -1,8 +1,11 @@
 package com.example.moodtracker.ui.track;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -22,9 +25,13 @@ import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
 import com.example.moodtracker.R;
+import com.example.moodtracker.data.FirebaseData;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class LineChartActivity extends AppCompatActivity {
 
@@ -48,6 +55,19 @@ public class LineChartActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         selectTime.setAdapter(adapter);
 
+        //spinner change listener
+        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                drawPlot(selectTime.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+
+        });
+
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +75,39 @@ public class LineChartActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+    }
+
+    /**
+     * DrawPlot based on selected timeFrame
+     * @param timeFrame, timeFrame selected
+     */
+    protected void drawPlot(String timeFrame){
+        Calendar cal = Calendar.getInstance();
+        Date endDate = cal.getTime();
+        Date startDate;
+        if(timeFrame.equals("Past Week")){
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            startDate = cal.getTime();
+        }else if (timeFrame.equals("Past Month")){
+            cal.add(Calendar.MONTH, -1);
+            startDate = cal.getTime();
+        }else{
+            cal.add(Calendar.MONTH, -3);
+            startDate = cal.getTime();
+        }
+
+        FirebaseData data = new FirebaseData(startDate, endDate);
+        // initialize data
+        List<DataEntry> seriesData = new ArrayList<>();
+        try {
+            ArrayList<String> dates = data.getData(startDate, endDate, "date");
+            ArrayList<String> sentiments = data.getData(startDate, endDate,"sentiment");
+            for(int i=0; i<dates.size(); i++){
+                seriesData.add(new ValueDataEntry(dates.get(i), Double.parseDouble(sentiments.get(i))));
+            }
+        } catch (Exception e) {
+            Log.d("ERROR", "Extract Data Failed ");
+        }
 
         // define cartesian coord
         Cartesian cartesian = AnyChart.line();
@@ -73,9 +126,6 @@ public class LineChartActivity extends AppCompatActivity {
         cartesian.yAxis(0).title("Mood level");
         cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
 
-        // initialize data
-        List<DataEntry> seriesData = new ArrayList<>();
-        seriesData.add(new ValueDataEntry("2021/4/13 21:00", 3.6));
 
         // place data in set
         Set set = Set.instantiate();
@@ -84,7 +134,7 @@ public class LineChartActivity extends AppCompatActivity {
 
         // add series to chart
         Line series1 = cartesian.line(series1Mapping);
-        series1.name("Brandy");
+        series1.name("Mood trend");
         series1.hovered().markers().enabled(true);
         series1.hovered().markers()
                 .type(MarkerType.CIRCLE)
@@ -104,3 +154,5 @@ public class LineChartActivity extends AppCompatActivity {
         anyChartView.setChart(cartesian);
     }
 }
+
+

@@ -30,10 +30,9 @@ public class Fetch {
     private final Date end;
 
     public Fetch(Date s, Date e){
-        start=s; end=e;
-
+        start=s;
+        end=e;
     }
-
 
     public QuerySnapshot FirebaseData(Date start, Date end) throws InterruptedException {
         QuerySnapshot[] result = new QuerySnapshot[1];
@@ -76,7 +75,6 @@ public class Fetch {
             e.printStackTrace();
         }
         return result[0];
-
     };
 
 

@@ -65,23 +65,21 @@ public class FirebaseData {
     }
     public MainActivity activity;
 
-
-//    @Override
-//    public void onAttach(@NonNull Context context) {
-//        super.onAttach(context);
-//        this.activity = activity;
-//
-//    }
-
-    public void getText(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
+    /**
+     * Get text of a journal
+     * @return list of text of existing journal
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public ArrayList<String> getText() throws ExecutionException, InterruptedException {
         ArrayList<String> texts = new ArrayList<String>();
         CountDownLatch done = new CountDownLatch(1);
         System.out.println("Thread Running");
         FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
         Task<QuerySnapshot> snapshot = db.collection("journals")
                 .whereEqualTo("uid", user.getUid())
-                .whereGreaterThanOrEqualTo("date", sTime)
-                .whereLessThanOrEqualTo("date", eTime)
+                .whereGreaterThanOrEqualTo("date", startTime)
+                .whereLessThanOrEqualTo("date", endTime)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -99,17 +97,10 @@ public class FirebaseData {
                                 Iterator iter = texts.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
-                                    // if statement here
                                     texts.add(map.toString());
                                 }
                             }
                             System.out.println("Thread Finished");
-                            Intent intent = new Intent(activity, HomeFragment.class);
-                            Bundle b = new Bundle();
-                            b.putStringArrayList("texts", texts);
-                            intent.putExtras(b);
-                            activity.startActivity(intent);
-
                         } else {
                             String TAG = "ERROR";
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -117,18 +108,22 @@ public class FirebaseData {
                     }
                 });
         System.out.println("Thread Finished");
+        return texts;
     }
 
-
-    public void getDate(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
-        ArrayList<String> date = new ArrayList<String>();
+    /**
+     * Get date of journals
+     * @return list of Date of journal in select timeframe
+     */
+    public ArrayList<String> getData(Date sTime, Date eTime, String field) throws Exception{
+        ArrayList<String> dataList = new ArrayList<String>();
         CountDownLatch done = new CountDownLatch(1);
         System.out.println("Thread Running");
         FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
         Task<QuerySnapshot> snapshot = db.collection("journals")
                 .whereEqualTo("uid", user.getUid())
-                .whereGreaterThanOrEqualTo("date", sTime)
-                .whereLessThanOrEqualTo("date", eTime)
+                .whereGreaterThanOrEqualTo("date", startTime)
+                .whereLessThanOrEqualTo("date", endTime)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -136,27 +131,19 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Map<String, Object> data = document.getData();
-                                ArrayList dates = (ArrayList) data.get("date");
+                                ArrayList dates = (ArrayList) data.get(field);
                                 dates.forEach((n) -> System.out.println(n));
                                 Iterator iter = dates.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
-                                    // if statement here
-                                    date.add(map.toString());
+                                    dataList.add(map.toString());
                                 }
                             }
                             System.out.println("Thread Finished");
-                            Intent intent = new Intent(activity, HomeFragment.class);
-                            Bundle b = new Bundle();
-                            b.putStringArrayList("dates", date);
-                            intent.putExtras(b);
-                            activity.startActivity(intent);
-
                         } else {
                             String TAG = "ERROR";
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -164,6 +151,7 @@ public class FirebaseData {
                     }
                 });
         System.out.println("Thread Finished");
+        return dataList;
     }
 
 
