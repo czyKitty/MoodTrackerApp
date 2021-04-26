@@ -187,7 +187,6 @@ public class FirebaseData {
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
                                     // if statement here
-
                                     HashMap sentimentMap = (HashMap) map.get("sentiment");
                                     Double score = new Double ((sentimentMap.get("score")).toString());
                                     if (score > 0) {
