@@ -79,9 +79,6 @@ public class PieChartActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-
-
-
     }
 
     protected void drawPlot(String timeFrame) {
@@ -111,7 +108,6 @@ public class PieChartActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d("ERROR", "Extract Data Failed ");
         }
-
 
         Pie pie = AnyChart.pie();
 
