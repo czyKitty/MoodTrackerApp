@@ -1,6 +1,7 @@
 package com.example.moodtracker.ui.track;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.anychart.AnyChart;
@@ -27,7 +29,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class WordPosActivity extends AppCompatActivity {
 
@@ -35,6 +39,7 @@ public class WordPosActivity extends AppCompatActivity {
     Spinner selectTime;
     AnyChartView anyChartView;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,39 +61,39 @@ public class WordPosActivity extends AppCompatActivity {
         drawPlot(keys);
 
         //spinner change listener
-        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String timeFrame = selectTime.getSelectedItem().toString();
-                Calendar cal = Calendar.getInstance();
-                Date endDate = cal.getTime();
-                Date startDate;
-
-                if(timeFrame.equals("Past Week")){
-                    cal.add(Calendar.DAY_OF_YEAR, -7);
-                    startDate = cal.getTime();
-                }else if (timeFrame.equals("Past Month")){
-                    cal.add(Calendar.MONTH, -1);
-                    startDate = cal.getTime();
-                }else{
-                    cal.add(Calendar.MONTH, -3);
-                    startDate = cal.getTime();
-                }
-
-                FirebaseData fetch = new FirebaseData(startDate, endDate);
-
-                try {
-                    fetch.getPosKeywords(startDate, endDate, getApplicationContext());
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-//                drawPlot(selectTime.getSelectedItem().toString());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-            }
-        });
+//        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                String timeFrame = selectTime.getSelectedItem().toString();
+//                Calendar cal = Calendar.getInstance();
+//                Date endDate = cal.getTime();
+//                Date startDate;
+//
+//                if(timeFrame.equals("Past Week")){
+//                    cal.add(Calendar.DAY_OF_YEAR, -7);
+//                    startDate = cal.getTime();
+//                }else if (timeFrame.equals("Past Month")){
+//                    cal.add(Calendar.MONTH, -1);
+//                    startDate = cal.getTime();
+//                }else{
+//                    cal.add(Calendar.MONTH, -3);
+//                    startDate = cal.getTime();
+//                }
+//
+//                FirebaseData fetch = new FirebaseData(startDate, endDate);
+//
+//                try {
+//                    fetch.getPosKeywords(startDate, endDate, getApplicationContext());
+//                } catch (ExecutionException | InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+////                drawPlot(selectTime.getSelectedItem().toString());
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parentView) {
+//            }
+//        });
         
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -101,10 +106,13 @@ public class WordPosActivity extends AppCompatActivity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void drawPlot(ArrayList<String> keys){
         List<DataEntry> seriesData = new ArrayList<>();
-        for(String key: keys){
-            seriesData.add(new CategoryValueDataEntry(key, "positive", Collections.frequency(keys, key)));
+        Map<String, Long> counts =
+                keys.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+        for(Map.Entry<String, Long> entry : counts.entrySet()){
+            seriesData.add(new CategoryValueDataEntry(entry.getKey(), "positive", Math.toIntExact(entry.getValue())));
         }
         // Define title of the plot
         TagCloud tagCloud = AnyChart.tagCloud();

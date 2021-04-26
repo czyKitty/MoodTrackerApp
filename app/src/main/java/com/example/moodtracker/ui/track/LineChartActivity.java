@@ -65,6 +65,7 @@ public class LineChartActivity extends AppCompatActivity {
         btnBack = (ImageButton)findViewById(R.id.btn_back);
         selectTime = (Spinner)findViewById(R.id.select_time);
 
+
         //initialize spinner option.
         String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -74,39 +75,39 @@ public class LineChartActivity extends AppCompatActivity {
 
 
         //spinner change listener
-        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String timeFrame = selectTime.getSelectedItem().toString();
-                Calendar cal = Calendar.getInstance();
-                Date endDate = cal.getTime();
-                Date startDate;
-
-                if(timeFrame.equals("Past Week")){
-                    cal.add(Calendar.DAY_OF_YEAR, -7);
-                    startDate = cal.getTime();
-                }else if (timeFrame.equals("Past Month")){
-                    cal.add(Calendar.MONTH, -1);
-                    startDate = cal.getTime();
-                }else{
-                    cal.add(Calendar.MONTH, -3);
-                    startDate = cal.getTime();
-                }
-
-                FirebaseData fetch = new FirebaseData(startDate, endDate);
-
-                try {
-                    fetch.getSentimentScore(startDate, endDate, getApplicationContext());
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-            }
-
-        });
+//        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @RequiresApi(api = Build.VERSION_CODES.N)
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                String timeFrame = selectTime.getSelectedItem().toString();
+//                Calendar cal = Calendar.getInstance();
+//                Date endDate = cal.getTime();
+//                Date startDate;
+//
+//                if(timeFrame.equals("Past Week")){
+//                    cal.add(Calendar.DAY_OF_YEAR, -7);
+//                    startDate = cal.getTime();
+//                }else if (timeFrame.equals("Past Month")){
+//                    cal.add(Calendar.MONTH, -1);
+//                    startDate = cal.getTime();
+//                }else{
+//                    cal.add(Calendar.MONTH, -3);
+//                    startDate = cal.getTime();
+//                }
+//
+//                FirebaseData fetch = new FirebaseData(startDate, endDate);
+//
+//                try {
+//                    fetch.getSentimentScore(startDate, endDate, getApplicationContext());
+//                } catch (ExecutionException | InterruptedException e) {
+//                    e.printStackTrace();
+//                }            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parentView) {
+//            }
+//
+//        });
 
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
