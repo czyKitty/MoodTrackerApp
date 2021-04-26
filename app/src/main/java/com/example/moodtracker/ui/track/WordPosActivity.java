@@ -65,7 +65,7 @@ public class WordPosActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parentView) {
             }
         });
-        
+
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
