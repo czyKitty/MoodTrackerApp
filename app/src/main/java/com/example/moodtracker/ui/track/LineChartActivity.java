@@ -99,15 +99,15 @@ public class LineChartActivity extends AppCompatActivity {
         FirebaseData data = new FirebaseData(startDate, endDate);
         // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        try {
-            ArrayList<String> dates = data.getData(startDate, endDate, "date");
-            ArrayList<String> sentiments = data.getData(startDate, endDate,"sentiment");
-            for(int i=0; i<dates.size(); i++){
-                seriesData.add(new ValueDataEntry(dates.get(i), Double.parseDouble(sentiments.get(i))));
-            }
-        } catch (Exception e) {
-            Log.d("ERROR", "Extract Data Failed ");
-        }
+//        try {
+//            ArrayList<String> dates = data.getData(startDate, endDate, "date");
+//            ArrayList<String> sentiments = data.getData(startDate, endDate,"sentiment");
+//            for(int i=0; i<dates.size(); i++){
+//                seriesData.add(new ValueDataEntry(dates.get(i), Double.parseDouble(sentiments.get(i))));
+//            }
+//        } catch (Exception e) {
+//            Log.d("ERROR", "Extract Data Failed ");
+//        }
 
         // define cartesian coord
         Cartesian cartesian = AnyChart.line();
