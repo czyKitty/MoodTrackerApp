@@ -20,7 +20,6 @@
     <string name="word_cloudPos">Key for Positive Mood</string>
     <string name="word_cloudNeg">Key for Negative Mood</string>
 
-
-    <string name="title_pref">Preference</string>
+    <string name="title_pref">User</string>
 
 </resources>

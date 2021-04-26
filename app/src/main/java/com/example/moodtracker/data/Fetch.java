@@ -22,18 +22,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Fetch {
-
     public FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
     public FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     public Task<QuerySnapshot> documents;
-    private final Date start;
-    private final Date end;
+    private final Date start, end;
 
+    /**
+     * Constructor
+     * @param s, start time
+     * @param e, end time
+     */
     public Fetch(Date s, Date e){
-        start=s;
-        end=e;
+        start = s;
+        end = e;
     }
 
+    /**
+     * Retrieve journals from firebase database
+     * @param start, start time to get first journal
+     * @param end, end time to get last journal
+     * @return QuerySnapshot of all journal between timeframe
+     * @throws InterruptedException
+     */
     public QuerySnapshot FirebaseData(Date start, Date end) throws InterruptedException {
         QuerySnapshot[] result = new QuerySnapshot[1];
         CountDownLatch done = new CountDownLatch(1);
@@ -63,8 +73,6 @@ public class Fetch {
                                 }
                             }
                         });
-
-
             }
         };
         th.start();
@@ -76,7 +84,4 @@ public class Fetch {
         }
         return result[0];
     };
-
-
-
 }

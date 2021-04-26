@@ -29,12 +29,13 @@ public class FirebaseUIActivity extends AppCompatActivity {
         System.out.println("firebase");
     }
 
+    /**
+     * Create and launch intent for sign in with google API
+     */
     public void createSignInIntent() {
-        // [START auth_fui_create_intent]
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build());
-
         // Create and launch sign-in intent
         startActivityForResult(
                 AuthUI.getInstance()
@@ -42,21 +43,23 @@ public class FirebaseUIActivity extends AppCompatActivity {
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
-        // [END auth_fui_create_intent]
     }
 
-    // [START auth_fui_result]
+    /**
+     * Override onActivityResult
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        // check request code
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
-
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -65,10 +68,8 @@ public class FirebaseUIActivity extends AppCompatActivity {
             }
         }
     }
-    // [END auth_fui_result]
 
     public void signOut() {
-        // [START auth_fui_signout]
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -76,11 +77,9 @@ public class FirebaseUIActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-        // [END auth_fui_signout]
     }
 
     public void delete() {
-        // [START auth_fui_delete]
         AuthUI.getInstance()
                 .delete(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -89,7 +88,6 @@ public class FirebaseUIActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-        // [END auth_fui_delete]
     }
 
     public void themeAndLogo() {

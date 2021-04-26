@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.moodtracker.MainActivity;
 import com.example.moodtracker.ui.home.HomeFragment;
+import com.example.moodtracker.ui.track.LineChartActivity;
 import com.example.moodtracker.ui.track.PieChartActivity;
 import com.example.moodtracker.ui.track.WordNegActivity;
 import com.example.moodtracker.ui.track.WordPosActivity;
@@ -29,8 +30,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,31 +58,26 @@ public class FirebaseData {
     public FirebaseData(Date sTime, Date eTime) {
         startTime = sTime;
         endTime = eTime;
-//        try {
-////            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-//            firebase = new Fetch(startTime, endTime);
-//            documents = firebase.FirebaseData(startTime, endTime);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
     }
-    public MainActivity activity;
 
     /**
-     * Get text of a journal
-     * @return list of text of existing journal
+     * get original journal text
+     * @param sTime
+     * @param eTime
+     * @param activity
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public ArrayList<String> getText() throws ExecutionException, InterruptedException {
+    public void getText(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
         ArrayList<String> texts = new ArrayList<String>();
         CountDownLatch done = new CountDownLatch(1);
         System.out.println("Thread Running");
         FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
         Task<QuerySnapshot> snapshot = db.collection("journals")
                 .whereEqualTo("uid", user.getUid())
-                .whereGreaterThanOrEqualTo("date", startTime)
-                .whereLessThanOrEqualTo("date", endTime)
+                .whereGreaterThanOrEqualTo("date", sTime)
+                .whereLessThanOrEqualTo("date", eTime)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -87,7 +85,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -97,10 +94,17 @@ public class FirebaseData {
                                 Iterator iter = texts.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
+                                    // if statement here
                                     texts.add(map.toString());
                                 }
                             }
                             System.out.println("Thread Finished");
+                            Intent intent = new Intent(activity, HomeFragment.class);
+                            Bundle b = new Bundle();
+                            b.putStringArrayList("texts", texts);
+                            intent.putExtras(b);
+                            activity.startActivity(intent);
+
                         } else {
                             String TAG = "ERROR";
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -112,18 +116,22 @@ public class FirebaseData {
     }
 
     /**
-     * Get date of journals
-     * @return list of Date of journal in select timeframe
+     * get Date of journal from firebase
+     * @param sTime
+     * @param eTime
+     * @param activity
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
-    public ArrayList<String> getData(Date sTime, Date eTime, String field) throws Exception{
-        ArrayList<String> dataList = new ArrayList<String>();
+    public void getDate(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
+        ArrayList<String> date = new ArrayList<String>();
         CountDownLatch done = new CountDownLatch(1);
         System.out.println("Thread Running");
         FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
         Task<QuerySnapshot> snapshot = db.collection("journals")
                 .whereEqualTo("uid", user.getUid())
-                .whereGreaterThanOrEqualTo("date", startTime)
-                .whereLessThanOrEqualTo("date", endTime)
+                .whereGreaterThanOrEqualTo("date", sTime)
+                .whereLessThanOrEqualTo("date", eTime)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -135,15 +143,22 @@ public class FirebaseData {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Map<String, Object> data = document.getData();
-                                ArrayList dates = (ArrayList) data.get(field);
+                                ArrayList dates = (ArrayList) data.get("date");
                                 dates.forEach((n) -> System.out.println(n));
                                 Iterator iter = dates.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
-                                    dataList.add(map.toString());
+                                    // if statement here
+                                    date.add(map.toString());
                                 }
                             }
                             System.out.println("Thread Finished");
+                            Intent intent = new Intent(activity, HomeFragment.class);
+                            Bundle b = new Bundle();
+                            b.putStringArrayList("dates", date);
+                            intent.putExtras(b);
+                            activity.startActivity(intent);
+
                         } else {
                             String TAG = "ERROR";
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -175,7 +190,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -186,7 +200,6 @@ public class FirebaseData {
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
                                     // if statement here
-
                                     HashMap sentimentMap = (HashMap) map.get("sentiment");
                                     Double score = new Double ((sentimentMap.get("score")).toString());
                                     if (score > 0) {
@@ -212,7 +225,6 @@ public class FirebaseData {
 
     /**
      * Method get keywords with negative mood
-     * @return set of negative keywords
      */
     public void getNegKeywords(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
         ArrayList<String> keywords = new ArrayList<String>();
@@ -230,7 +242,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getNegKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -266,7 +277,7 @@ public class FirebaseData {
 
 
     /**
-     * Method get tones
+     * Method get tones from firebase
      * @return
      */
     public void getTones(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
@@ -285,7 +296,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -295,7 +305,6 @@ public class FirebaseData {
                                 Iterator iter = tone.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
-                                    // if statement here
                                     tones.add((String) map.get("toneName"));
                                 }
                             }
@@ -315,12 +324,62 @@ public class FirebaseData {
         System.out.println("Thread Finished");
     }
 
-//    public ArrayList<Double> getSentimentScore() throws ExecutionException, InterruptedException {
-//        ArrayList<Double> sentiments = new ArrayList<Double>();
-//        for (QueryDocumentSnapshot document : documents.get().getResult()) {
-//            sentiments.add((double) document.get("sentiment"));
-//        }
-//        return sentiments;
-//    }
 
+    /**
+     * get sentimentScore from firebase
+     * @param sTime
+     * @param eTime
+     * @param activity
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void getSentimentScore(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
+        HashMap<String, Double> sentimentScores = new HashMap<String, Double>();
+        CountDownLatch done = new CountDownLatch(1);
+        System.out.println("Thread Running");
+        FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
+        Task<QuerySnapshot> snapshot = db.collection("journals")
+                .whereEqualTo("uid", user.getUid())
+                .whereGreaterThanOrEqualTo("date", sTime)
+                .whereLessThanOrEqualTo("date", eTime)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        tasks = task;
+                        if (task.isSuccessful()) {
+//                            getSentimentScore(task);
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String TAG = "SENTIMENT - SUCCESS";
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Map<String, Object> data = document.getData();
+                                String currentDate = (String) data.get("date").toString();
+                                HashMap sentimentMap = (HashMap) data.get("sentiment");
+                                Collection <String> values = sentimentMap.values();
+
+                                ArrayList sentiment = new ArrayList<String>(values);
+                                sentiment = new ArrayList<String>(sentiment.subList(0,(sentiment.size()-1)));
+                                sentiment.forEach((n) -> System.out.println("sentiment map is "+n));
+
+                                HashMap sentimentPair = (HashMap) sentiment.get(0);
+
+                                sentimentScores.put(currentDate, (Double) sentimentPair.get("score"));
+                                System.out.println("the sentiment score hashmap is: "+ sentimentScores);
+                            }
+                            System.out.println("Thread Finished");
+                            Intent intent = new Intent(activity, LineChartActivity.class);
+                            Bundle b = new Bundle();
+                            b.putSerializable("sentimentScoreTable", sentimentScores);
+                            intent.putExtras(b);
+                            activity.startActivity(intent);
+
+                        } else {
+                            String TAG = "ERROR";
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        System.out.println("Thread Finished");
+    }
 }
