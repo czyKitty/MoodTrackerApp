@@ -112,7 +112,6 @@ public class FirebaseData {
                     }
                 });
         System.out.println("Thread Finished");
-        return texts;
     }
 
     /**
@@ -166,7 +165,6 @@ public class FirebaseData {
                     }
                 });
         System.out.println("Thread Finished");
-        return dataList;
     }
 
 

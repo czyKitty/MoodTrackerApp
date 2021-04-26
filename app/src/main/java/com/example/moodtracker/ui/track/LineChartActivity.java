@@ -1,11 +1,7 @@
 package com.example.moodtracker.ui.track;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.renderscript.Sampler;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
-import com.anychart.chart.common.dataentry.CategoryValueDataEntry;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
@@ -31,12 +26,10 @@ import com.anychart.graphics.vector.Stroke;
 import com.example.moodtracker.R;
 import com.example.moodtracker.data.FirebaseData;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -45,20 +38,21 @@ public class LineChartActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
-    HashMap scores = new HashMap<String, String>();
+    HashMap<String, Double> scores = new HashMap<String, Double>();
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
         Bundle extras = getIntent().getExtras();
         if (!scores.isEmpty()){
-            scores = (HashMap) extras.getSerializable("sentimentScoreTable");
+            scores = (HashMap<String, Double>) extras.getSerializable("sentimentScoreTable");
             System.out.println("Score is not null: "+ scores);
         }
         else{
-            scores.put("2021-4-25", "0.85");
-            scores.put("2021-4-24", "0.5");
+            scores.put("2021-4-25", 0.85);
+            scores.put("2021-4-24", 0.5);
             System.out.println("Score is null: "+ scores);
 
         }
@@ -75,6 +69,9 @@ public class LineChartActivity extends AppCompatActivity {
         String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         selectTime.setAdapter(adapter);
+
+        drawPlot(scores);
+
 
         //spinner change listener
         selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -100,7 +97,7 @@ public class LineChartActivity extends AppCompatActivity {
                 FirebaseData fetch = new FirebaseData(startDate, endDate);
 
                 try {
-                    fetch.getNegKeywords(startDate, endDate, getApplicationContext());
+                    fetch.getSentimentScore(startDate, endDate, getApplicationContext());
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }            }
@@ -122,44 +119,17 @@ public class LineChartActivity extends AppCompatActivity {
 
     /**
      * DrawPlot based on selected timeFrame
-     * @param timeFrame, timeFrame selected
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    protected void drawPlot(String timeFrame){
-        Calendar cal = Calendar.getInstance();
-        Date endDate = cal.getTime();
-        Date startDate;
-        if(timeFrame.equals("Past Week")){
-            cal.add(Calendar.DAY_OF_YEAR, -7);
-            startDate = cal.getTime();
-        }else if (timeFrame.equals("Past Month")){
-            cal.add(Calendar.MONTH, -1);
-            startDate = cal.getTime();
-        }else{
-            cal.add(Calendar.MONTH, -3);
-            startDate = cal.getTime();
-        }
-
-        List<DataEntry> seriesData = new ArrayList<>();
+    protected void drawPlot(HashMap<String, Double> scores){
 
         // add data
-        List<DataEntry> data = new ArrayList<>();
-
+        List<DataEntry> seriesData = new ArrayList<>();
 
         scores.forEach((k, v) -> {
-            seriesData.add(new ValueDataEntry(String.valueOf(k), Double.parseDouble((String) v)));
+            seriesData.add(new ValueDataEntry(String.valueOf(k), v));
 
         });
-
-//        try {
-//            ArrayList<String> dates = data.getData(startDate, endDate, "date");
-//            ArrayList<String> sentiments = data.getData(startDate, endDate,"sentiment");
-//            for(int i=0; i<dates.size(); i++){
-//                seriesData.add(new ValueDataEntry(dates.get(i), Double.parseDouble(sentiments.get(i))));
-//            }
-//        } catch (Exception e) {
-//            Log.d("ERROR", "Extract Data Failed ");
-//        }
 
         // define cartesian coord
         Cartesian cartesian = AnyChart.line();
