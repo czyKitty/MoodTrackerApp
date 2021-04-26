@@ -44,32 +44,31 @@ public class TrackFragment extends Fragment {
         btn_line.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**
-                try {
-                    startActivity(new Intent(getActivity(), LineChartActivity.class));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                 */
+//                try {
+//                    startActivity(new Intent(getActivity(), LineChartActivity.class));
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
                 FirebaseData fetch = new FirebaseData(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date());
                 try {
-                    fetch.getPosKeywords(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
+                    fetch.getSentimentScore(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
+
             }
         });
 
         btn_pie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(getActivity(), PieChartActivity.class));
                 FirebaseData fetch = new FirebaseData(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date());
                 try {
-                    fetch.getPosKeywords(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
+                    fetch.getTones(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
+
             }
         });
 

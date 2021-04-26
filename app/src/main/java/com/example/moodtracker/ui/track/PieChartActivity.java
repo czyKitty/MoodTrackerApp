@@ -99,15 +99,15 @@ public class PieChartActivity extends AppCompatActivity {
         FirebaseData data = new FirebaseData(startDate, endDate);
         // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        try {
-            ArrayList<String> tones = data.getData(startDate, endDate, "tone");
-            // get each tones and number of appearance
-            for(String tone: tones){
-                seriesData.add(new ValueDataEntry(tone, Collections.frequency(tones, tone)));
-            }
-        } catch (Exception e) {
-            Log.d("ERROR", "Extract Data Failed ");
-        }
+//        try {
+//            ArrayList<String> tones = data.getData(startDate, endDate, "tone");
+//            // get each tones and number of appearance
+//            for(String tone: tones){
+//                seriesData.add(new ValueDataEntry(tone, Collections.frequency(tones, tone)));
+//            }
+//        } catch (Exception e) {
+//            Log.d("ERROR", "Extract Data Failed ");
+//        }
 
         Pie pie = AnyChart.pie();
 
