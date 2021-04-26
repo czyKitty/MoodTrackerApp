@@ -49,13 +49,10 @@ import static android.app.Activity.RESULT_OK;
 
 
 public class TalkFragment extends Fragment {
-
-
     private static final int REQUEST_CODE = 100;
     FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase db
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-    private TalkViewModel dashboardViewModel;
     Button btnSubmit;
     Button btnTalk;
     EditText txtJournal;
@@ -81,8 +78,6 @@ public class TalkFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                new ViewModelProvider(this).get(TalkViewModel.class);
         View root = inflater.inflate(R.layout.fragment_talk, container, false);
         //Test
 //        try {

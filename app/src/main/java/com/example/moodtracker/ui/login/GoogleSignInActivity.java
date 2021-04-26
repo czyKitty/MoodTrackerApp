@@ -73,16 +73,6 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 signIn();
             }
         });
-        //signOutButton = (Button) findViewById(R.id.signOutButton);
-        /*
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "i am Logging out");
-                signOut();
-            }
-        });
-        */
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -107,7 +97,6 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 Log.w(TAG, "Google sign in failed", e);
             }
         }
-
     }
 
     // [START auth_with_google]
@@ -150,11 +139,5 @@ public class GoogleSignInActivity extends AppCompatActivity {
     private void updateUI(FirebaseUser user) {
 
     }
-
-    private void signOut(){
-        statusTextView.setText("Signed out");
-        FirebaseAuth.getInstance().signOut();
-    }
-
 
 }
