@@ -61,7 +61,14 @@ public class FirebaseData {
 
     }
 
-
+    /**
+     * get original journal text
+     * @param sTime
+     * @param eTime
+     * @param activity
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void getText(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
         ArrayList<String> texts = new ArrayList<String>();
         CountDownLatch done = new CountDownLatch(1);
@@ -78,7 +85,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -108,7 +114,14 @@ public class FirebaseData {
         System.out.println("Thread Finished");
     }
 
-
+    /**
+     * get Date of journal from firebase
+     * @param sTime
+     * @param eTime
+     * @param activity
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void getDate(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
         ArrayList<String> date = new ArrayList<String>();
         CountDownLatch done = new CountDownLatch(1);
@@ -125,7 +138,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -176,7 +188,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -212,7 +223,6 @@ public class FirebaseData {
 
     /**
      * Method get keywords with negative mood
-     * @return set of negative keywords
      */
     public void getNegKeywords(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
         ArrayList<String> keywords = new ArrayList<String>();
@@ -230,7 +240,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getNegKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -266,7 +275,7 @@ public class FirebaseData {
 
 
     /**
-     * Method get tones
+     * Method get tones from firebase
      * @return
      */
     public void getTones(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
@@ -285,7 +294,6 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -295,7 +303,6 @@ public class FirebaseData {
                                 Iterator iter = tone.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
-                                    // if statement here
                                     tones.add((String) map.get("toneName"));
                                 }
                             }
@@ -316,8 +323,15 @@ public class FirebaseData {
     }
 
 
+    /**
+     * get sentimentScore from firebase
+     * @param sTime
+     * @param eTime
+     * @param activity
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void getSentimentScore(Date sTime, Date eTime, Context activity) throws ExecutionException, InterruptedException {
-//        ArrayList<String> sentimentScores = new ArrayList<String>();
         HashMap<String, Double> sentimentScores = new HashMap<String, Double>();
         CountDownLatch done = new CountDownLatch(1);
         System.out.println("Thread Running");
@@ -349,11 +363,6 @@ public class FirebaseData {
                                 HashMap sentimentPair = (HashMap) sentiment.get(0);
 
                                 sentimentScores.put(currentDate, (Double) sentimentPair.get("score"));
-//                                while (iter.hasNext()) {
-//                                    HashMap map = (HashMap) iter.next();
-//                                    // if statement here
-//                                    sentimentScores.put(currentDate, (Double) map.get("score"));
-//                                }
                                 System.out.println("the sentiment score hashmap is: "+ sentimentScores);
                             }
                             System.out.println("Thread Finished");
@@ -371,6 +380,4 @@ public class FirebaseData {
                 });
         System.out.println("Thread Finished");
     }
-
-
 }

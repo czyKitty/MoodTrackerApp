@@ -29,11 +29,9 @@ public class HomeFragment extends Fragment {
     //DatabaseReference mbase; // Create object of the Firebase Realtime Database
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //return super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
