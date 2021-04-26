@@ -30,6 +30,11 @@ public class JournalAdapter extends FirestoreRecyclerAdapter<Journal, JournalAda
 
         // Add date from model class (journal.class)to appropriate view in Card view (journal.xml)
         holder.jdate.setText(model.getDate().toString());
+
+        // turn date into string into array
+        String lineOfDate = (model.getDate().toString());
+        String[] separated = lineOfDate.split(" ");
+
     }
 
     // Function to tell the class about the Card view (journal.xml) in which the data will be shown
