@@ -334,7 +334,7 @@ public class FirebaseData {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         tasks = task;
                         if (task.isSuccessful()) {
-//                            getPosKey(task);
+//                            getSentimentScore(task);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String TAG = "SENTIMENT - SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
@@ -344,9 +344,11 @@ public class FirebaseData {
                                 Collection <String> values = sentimentMap.values();
 
                                 ArrayList sentiment = new ArrayList<String>(values);
+                                sentiment = new ArrayList<String>(sentiment.subList(0,(sentiment.size()-1)));
                                 sentiment.forEach((n) -> System.out.println("sentiment map is "+n));
-                                Iterator iter = sentiment.iterator();
+
                                 HashMap sentimentPair = (HashMap) sentiment.get(0);
+
                                 sentimentScores.put(currentDate, (Double) sentimentPair.get("score"));
 //                                while (iter.hasNext()) {
 //                                    HashMap map = (HashMap) iter.next();
