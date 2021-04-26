@@ -34,7 +34,6 @@ public class WordPosActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
-    FirebaseData fetch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,19 +45,44 @@ public class WordPosActivity extends AppCompatActivity {
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
         btnBack = (ImageButton)findViewById(R.id.btn_back);
         selectTime = (Spinner)findViewById(R.id.select_time);
+        Bundle extras = getIntent().getExtras();
+        ArrayList<String> keys = extras.getStringArrayList("keywords");
 
         //initialize spinner option.
         String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         selectTime.setAdapter(adapter);
 
-        drawPlot(selectTime.getSelectedItem().toString());
+        drawPlot(keys);
 
         //spinner change listener
         selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                drawPlot(selectTime.getSelectedItem().toString());
+                String timeFrame = selectTime.getSelectedItem().toString();
+                Calendar cal = Calendar.getInstance();
+                Date endDate = cal.getTime();
+                Date startDate;
+
+                if(timeFrame.equals("Past Week")){
+                    cal.add(Calendar.DAY_OF_YEAR, -7);
+                    startDate = cal.getTime();
+                }else if (timeFrame.equals("Past Month")){
+                    cal.add(Calendar.MONTH, -1);
+                    startDate = cal.getTime();
+                }else{
+                    cal.add(Calendar.MONTH, -3);
+                    startDate = cal.getTime();
+                }
+
+                FirebaseData fetch = new FirebaseData(startDate, endDate);
+
+                try {
+                    fetch.getPosKeywords(startDate, endDate, getApplicationContext());
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+//                drawPlot(selectTime.getSelectedItem().toString());
             }
 
             @Override
@@ -77,37 +101,14 @@ public class WordPosActivity extends AppCompatActivity {
     }
 
 
-    public void drawPlot(String timeFrame){
-        Calendar cal = Calendar.getInstance();
-        Date endDate = cal.getTime();
-        Date startDate;
-        if(timeFrame.equals("Past Week")){
-            cal.add(Calendar.DAY_OF_YEAR, -7);
-            startDate = cal.getTime();
-        }else if (timeFrame.equals("Past Month")){
-            cal.add(Calendar.MONTH, -1);
-            startDate = cal.getTime();
-        }else{
-            cal.add(Calendar.MONTH, -3);
-            startDate = cal.getTime();
-        }
-
-        FirebaseData data = new FirebaseData(startDate, endDate);
-        // initialize data
+    public void drawPlot(ArrayList<String> keys){
         List<DataEntry> seriesData = new ArrayList<>();
-        try {
-            ArrayList<String> keys = data.getData(startDate, endDate, "key");
-            // get each tones and number of appearance
-            for(String key: keys){
-                seriesData.add(new CategoryValueDataEntry(key, "negative", Collections.frequency(keys, key)));
-            }
-        } catch (Exception e) {
-            Log.d("ERROR", "Extract Data Failed ");
+        for(String key: keys){
+            seriesData.add(new CategoryValueDataEntry(key, "positive", Collections.frequency(keys, key)));
         }
-
         // Define title of the plot
         TagCloud tagCloud = AnyChart.tagCloud();
-        tagCloud.title("Key Terms for negative Mood");
+        tagCloud.title("Key Terms for positive Mood");
 
         // settings
         OrdinalColor ordinalColor = OrdinalColor.instantiate();

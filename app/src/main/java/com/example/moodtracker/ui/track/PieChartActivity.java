@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class PieChartActivity extends AppCompatActivity {
 
@@ -44,8 +45,7 @@ public class PieChartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
         Bundle extras = getIntent().getExtras();
-
-        ArrayList<String> tone =extras.getStringArrayList("tones");
+        ArrayList<String> tones = extras.getStringArrayList("tones");
 
         //define view variables
         anyChartView = findViewById(R.id.chartView);
@@ -58,14 +58,35 @@ public class PieChartActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         selectTime.setAdapter(adapter);
 
-        drawPlot(selectTime.getSelectedItem().toString());
+        drawPlot(tones);
 
         //spinner change listener
         selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                drawPlot(selectTime.getSelectedItem().toString());
-            }
+                String timeFrame = selectTime.getSelectedItem().toString();
+                Calendar cal = Calendar.getInstance();
+                Date endDate = cal.getTime();
+                Date startDate;
+
+                if(timeFrame.equals("Past Week")){
+                    cal.add(Calendar.DAY_OF_YEAR, -7);
+                    startDate = cal.getTime();
+                }else if (timeFrame.equals("Past Month")){
+                    cal.add(Calendar.MONTH, -1);
+                    startDate = cal.getTime();
+                }else{
+                    cal.add(Calendar.MONTH, -3);
+                    startDate = cal.getTime();
+                }
+
+                FirebaseData fetch = new FirebaseData(startDate, endDate);
+
+                try {
+                    fetch.getNegKeywords(startDate, endDate, getApplicationContext());
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }            }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
@@ -84,34 +105,12 @@ public class PieChartActivity extends AppCompatActivity {
 
     }
 
-    protected void drawPlot(String timeFrame) {
-        Calendar cal = Calendar.getInstance();
-        Date endDate = cal.getTime();
-        Date startDate;
-        if(timeFrame.equals("Past Week")){
-            cal.add(Calendar.DAY_OF_YEAR, -7);
-            startDate = cal.getTime();
-        }else if (timeFrame.equals("Past Month")){
-            cal.add(Calendar.MONTH, -1);
-            startDate = cal.getTime();
-        }else{
-            cal.add(Calendar.MONTH, -3);
-            startDate = cal.getTime();
-        }
-
-        FirebaseData data = new FirebaseData(startDate, endDate);
+    protected void drawPlot(ArrayList<String> tones) {
         // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        try {
-            ArrayList<String> tones = data.getData(startDate, endDate, "tone");
-            // get each tones and number of appearance
-            for(String tone: tones){
-                seriesData.add(new ValueDataEntry(tone, Collections.frequency(tones, tone)));
-            }
-        } catch (Exception e) {
-            Log.d("ERROR", "Extract Data Failed ");
+        for(String tone: tones){
+            seriesData.add(new ValueDataEntry(tone, Collections.frequency(tones, tone)));
         }
-
 
         Pie pie = AnyChart.pie();
 
