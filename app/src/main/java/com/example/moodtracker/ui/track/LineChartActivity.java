@@ -2,7 +2,9 @@ package com.example.moodtracker.ui.track;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,10 +12,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
+import com.anychart.chart.common.dataentry.CategoryValueDataEntry;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
@@ -27,9 +31,12 @@ import com.anychart.graphics.vector.Stroke;
 import com.example.moodtracker.R;
 import com.example.moodtracker.data.FirebaseData;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -38,11 +45,25 @@ public class LineChartActivity extends AppCompatActivity {
     ImageButton btnBack;
     Spinner selectTime;
     AnyChartView anyChartView;
+    HashMap scores = new HashMap<String, String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
+        Bundle extras = getIntent().getExtras();
+        if (!scores.isEmpty()){
+            scores = (HashMap) extras.getSerializable("sentimentScoreTable");
+            System.out.println("Score is not null: "+ scores);
+        }
+        else{
+            scores.put("2021-4-25", "0.85");
+            scores.put("2021-4-24", "0.5");
+            System.out.println("Score is null: "+ scores);
+
+        }
+
+
 
         //define view variables
         anyChartView = findViewById(R.id.chartView);
@@ -57,6 +78,7 @@ public class LineChartActivity extends AppCompatActivity {
 
         //spinner change listener
         selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 drawPlot(selectTime.getSelectedItem().toString());
@@ -81,6 +103,7 @@ public class LineChartActivity extends AppCompatActivity {
      * DrawPlot based on selected timeFrame
      * @param timeFrame, timeFrame selected
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void drawPlot(String timeFrame){
         Calendar cal = Calendar.getInstance();
         Date endDate = cal.getTime();
@@ -96,18 +119,26 @@ public class LineChartActivity extends AppCompatActivity {
             startDate = cal.getTime();
         }
 
-        FirebaseData data = new FirebaseData(startDate, endDate);
-        // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        try {
-            ArrayList<String> dates = data.getData(startDate, endDate, "date");
-            ArrayList<String> sentiments = data.getData(startDate, endDate,"sentiment");
-            for(int i=0; i<dates.size(); i++){
-                seriesData.add(new ValueDataEntry(dates.get(i), Double.parseDouble(sentiments.get(i))));
-            }
-        } catch (Exception e) {
-            Log.d("ERROR", "Extract Data Failed ");
-        }
+
+        // add data
+        List<DataEntry> data = new ArrayList<>();
+
+
+        scores.forEach((k, v) -> {
+            seriesData.add(new ValueDataEntry(String.valueOf(k), Double.parseDouble((String) v)));
+
+        });
+
+//        try {
+//            ArrayList<String> dates = data.getData(startDate, endDate, "date");
+//            ArrayList<String> sentiments = data.getData(startDate, endDate,"sentiment");
+//            for(int i=0; i<dates.size(); i++){
+//                seriesData.add(new ValueDataEntry(dates.get(i), Double.parseDouble(sentiments.get(i))));
+//            }
+//        } catch (Exception e) {
+//            Log.d("ERROR", "Extract Data Failed ");
+//        }
 
         // define cartesian coord
         Cartesian cartesian = AnyChart.line();
@@ -130,6 +161,7 @@ public class LineChartActivity extends AppCompatActivity {
         // place data in set
         Set set = Set.instantiate();
         set.data(seriesData);
+
         Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
 
         // add series to chart
@@ -154,5 +186,4 @@ public class LineChartActivity extends AppCompatActivity {
         anyChartView.setChart(cartesian);
     }
 }
-
 
