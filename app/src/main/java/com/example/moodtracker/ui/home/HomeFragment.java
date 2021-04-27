@@ -41,7 +41,8 @@ public class HomeFragment extends Fragment {
         welcome_txt = (TextView) homeView.findViewById(R.id.welcome_txt);
         // display user info
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        welcome_txt.setText("Hello,\n"+user.getDisplayName());
+        String[] separated_name = user.getDisplayName().split(" ");
+        welcome_txt.setText(separated_name[0]+"\'s Journals");
         return homeView;
     }
 
