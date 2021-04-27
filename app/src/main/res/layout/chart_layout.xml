@@ -36,10 +36,10 @@
         android:contentDescription="@string/title_track"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/edtDate"
-        app:layout_constraintHorizontal_bias="0.08"
+        app:layout_constraintHorizontal_bias="0.037"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.060000002"
+        app:layout_constraintVertical_bias="0.091"
         app:srcCompat="@drawable/icons8_left_24" />
 
     <EditText
@@ -60,16 +60,15 @@
         android:layout_width="80dp"
         android:layout_height="40dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="60dp"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="@string/end_date"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/chartView"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_back"
         app:layout_constraintEnd_toStartOf="@+id/btnDate"
         app:layout_constraintStart_toEndOf="@+id/edtDate"
-        app:layout_constraintTop_toBottomOf="@+id/btnDate"
-        app:layout_constraintVertical_bias="0.769" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.466" />
 
     <Button
         android:id="@+id/btnDate"

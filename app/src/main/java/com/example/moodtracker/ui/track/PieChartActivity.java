@@ -42,7 +42,6 @@ import java.util.concurrent.ExecutionException;
 public class PieChartActivity extends AppCompatActivity {
 
     ImageButton btnBack;
-    Spinner selectTime;
     AnyChartView anyChartView;
 
     DatePickerDialog start;
@@ -65,7 +64,6 @@ public class PieChartActivity extends AppCompatActivity {
         anyChartView = findViewById(R.id.chartView);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
         btnBack = (ImageButton)findViewById(R.id.btn_back);
-//        selectTime = (Spinner)findViewById(R.id.select_time);
 
 
         //initialize datepicker option.
@@ -74,10 +72,6 @@ public class PieChartActivity extends AppCompatActivity {
         edtStart.setInputType(InputType.TYPE_NULL);
         edtEnd.setInputType(InputType.TYPE_NULL);
         btnDate=(Button) findViewById(R.id.btnDate);
-        final Calendar cldr = Calendar.getInstance();
-        int day = cldr.get(Calendar.DAY_OF_MONTH);
-        int month = cldr.get(Calendar.MONTH);
-        int year = cldr.get(Calendar.YEAR);
 
         edtStart.setOnClickListener(new View.OnClickListener() {
             @Override

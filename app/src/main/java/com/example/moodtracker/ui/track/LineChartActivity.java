@@ -41,7 +41,6 @@ import java.util.concurrent.ExecutionException;
 public class LineChartActivity extends AppCompatActivity {
 
     ImageButton btnBack;
-    Spinner selectTime;
     AnyChartView anyChartView;
     HashMap<String, Double> scores = new HashMap<String, Double>();
 
@@ -84,10 +83,6 @@ public class LineChartActivity extends AppCompatActivity {
         edtStart.setInputType(InputType.TYPE_NULL);
         edtEnd.setInputType(InputType.TYPE_NULL);
         btnDate=(Button) findViewById(R.id.btnDate);
-        final Calendar cldr = Calendar.getInstance();
-        int day = cldr.get(Calendar.DAY_OF_MONTH);
-        int month = cldr.get(Calendar.MONTH);
-        int year = cldr.get(Calendar.YEAR);
 
         edtStart.setOnClickListener(new View.OnClickListener() {
             @Override
