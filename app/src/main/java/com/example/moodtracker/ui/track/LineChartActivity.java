@@ -1,10 +1,15 @@
 package com.example.moodtracker.ui.track;
 
+import android.app.DatePickerDialog;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
@@ -40,6 +45,15 @@ public class LineChartActivity extends AppCompatActivity {
     AnyChartView anyChartView;
     HashMap<String, Double> scores = new HashMap<String, Double>();
 
+    DatePickerDialog start;
+    DatePickerDialog end;
+
+    EditText edtStart;
+    EditText edtEnd;
+    Button btnDate;
+    Date startDate = new Date();
+    Date endDate = new Date();
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,51 +77,82 @@ public class LineChartActivity extends AppCompatActivity {
         anyChartView = findViewById(R.id.chartView);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
         btnBack = (ImageButton)findViewById(R.id.btn_back);
-        selectTime = (Spinner)findViewById(R.id.select_time);
 
+        //initialize datepicker option.
+        edtStart=(EditText) findViewById(R.id.edtDate);
+        edtEnd=(EditText) findViewById(R.id.edtDate2);
+        edtStart.setInputType(InputType.TYPE_NULL);
+        edtEnd.setInputType(InputType.TYPE_NULL);
+        btnDate=(Button) findViewById(R.id.btnDate);
+        final Calendar cldr = Calendar.getInstance();
+        int day = cldr.get(Calendar.DAY_OF_MONTH);
+        int month = cldr.get(Calendar.MONTH);
+        int year = cldr.get(Calendar.YEAR);
 
-        //initialize spinner option.
-        String[] items = new String[]{"Past Week", "Past Month", "Past 3 Months"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-        selectTime.setAdapter(adapter);
+        edtStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar cldr = Calendar.getInstance();
+                int day = cldr.get(Calendar.DAY_OF_MONTH);
+                int month = cldr.get(Calendar.MONTH);
+                int year = cldr.get(Calendar.YEAR);
+                // date picker dialog
+                start = new DatePickerDialog(LineChartActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                edtStart.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                Calendar mCalender = Calendar.getInstance();
+                                mCalender.set(Calendar.YEAR, year);
+                                mCalender.set(Calendar.MONTH, monthOfYear);
+                                mCalender.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                startDate.setTime(mCalender.getTimeInMillis());
+
+                            }
+                        }, year, month, day);
+                start.show();
+            }
+        });
+
+        edtEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar cldr = Calendar.getInstance();
+                int day = cldr.get(Calendar.DAY_OF_MONTH);
+                int month = cldr.get(Calendar.MONTH);
+                int year = cldr.get(Calendar.YEAR);
+                // date picker dialog
+                end = new DatePickerDialog(LineChartActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                edtEnd.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                                Calendar mCalender = Calendar.getInstance();
+                                mCalender.set(Calendar.YEAR, year);
+                                mCalender.set(Calendar.MONTH, monthOfYear);
+                                mCalender.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                endDate.setTime(mCalender.getTimeInMillis());
+
+                            }
+                        }, year, month, day);
+                end.show();
+            }
+        });
+
+        btnDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    FirebaseData fetch = new FirebaseData(startDate, endDate);
+                    fetch.getSentimentScore(startDate, endDate, LineChartActivity.this);
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         drawPlot(scores);
 
-
-        //spinner change listener
-//        selectTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @RequiresApi(api = Build.VERSION_CODES.N)
-//            @Override
-//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-//                String timeFrame = selectTime.getSelectedItem().toString();
-//                Calendar cal = Calendar.getInstance();
-//                Date endDate = cal.getTime();
-//                Date startDate;
-//
-//                if(timeFrame.equals("Past Week")){
-//                    cal.add(Calendar.DAY_OF_YEAR, -7);
-//                    startDate = cal.getTime();
-//                }else if (timeFrame.equals("Past Month")){
-//                    cal.add(Calendar.MONTH, -1);
-//                    startDate = cal.getTime();
-//                }else{
-//                    cal.add(Calendar.MONTH, -3);
-//                    startDate = cal.getTime();
-//                }
-//
-//                FirebaseData fetch = new FirebaseData(startDate, endDate);
-//
-//                try {
-//                    fetch.getSentimentScore(startDate, endDate, getApplicationContext());
-//                } catch (ExecutionException | InterruptedException e) {
-//                    e.printStackTrace();
-//                }            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parentView) {
-//            }
-//
-//        });
 
         //back to track page
         btnBack.setOnClickListener(new View.OnClickListener() {
