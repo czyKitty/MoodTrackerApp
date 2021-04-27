@@ -44,11 +44,6 @@ public class TrackFragment extends Fragment {
         btn_line.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                try {
-//                    startActivity(new Intent(getActivity(), LineChartActivity.class));
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
                 FirebaseData fetch = new FirebaseData(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date());
                 try {
                     fetch.getSentimentScore(DateUtils.addWeeks(Calendar.getInstance().getTime(), -4), new Date(), getActivity());
