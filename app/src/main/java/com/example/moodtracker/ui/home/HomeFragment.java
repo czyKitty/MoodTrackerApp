@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +25,8 @@ import com.google.firebase.firestore.Query;
 
 public class HomeFragment extends Fragment {
 
+    TextView welcome_txt;
+
     private RecyclerView recyclerView;
     JournalAdapter adapter; // Create Object of the Adapter class
     //DatabaseReference mbase; // Create object of the Firebase Realtime Database
@@ -32,7 +35,15 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View homeView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        //initialize view components
+        welcome_txt = (TextView) homeView.findViewById(R.id.welcome_txt);
+        // display user info
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String[] separated_name = user.getDisplayName().split(" ");
+        welcome_txt.setText(separated_name[0]+"\'s Journals");
+        return homeView;
     }
 
     CollectionReference collectionReference;
