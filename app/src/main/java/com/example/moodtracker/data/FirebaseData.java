@@ -298,8 +298,8 @@ public class FirebaseData {
                                 String TAG = "SUCCESS";
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Map<String, Object> data = document.getData();
-                                ArrayList tone = (ArrayList) data.get("keywords");
-                                tone.forEach((n) -> System.out.println(n));
+                                HashMap toneMap = (HashMap) data.get("tones");
+                                ArrayList tone = (ArrayList) toneMap.get("tones");
                                 Iterator iter = tone.iterator();
                                 while (iter.hasNext()) {
                                     HashMap map = (HashMap) iter.next();
