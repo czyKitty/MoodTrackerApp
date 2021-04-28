@@ -59,15 +59,11 @@ public class LineChartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chart_layout);
         Bundle extras = getIntent().getExtras();
-        if (!scores.isEmpty()){
+        try{
             scores = (HashMap<String, Double>) extras.getSerializable("sentimentScoreTable");
-            System.out.println("Score is not null: "+ scores);
-        }
-        else{
-            scores.put("2021-4-25", 0.85);
-            scores.put("2021-4-24", 0.5);
-            System.out.println("Score is null: "+ scores);
 
+        } catch (Exception e){
+            e.printStackTrace();
         }
 
 

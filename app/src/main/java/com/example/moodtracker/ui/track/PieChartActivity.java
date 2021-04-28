@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class PieChartActivity extends AppCompatActivity {
@@ -151,7 +153,8 @@ public class PieChartActivity extends AppCompatActivity {
     protected void drawPlot(ArrayList<String> tones) {
         // initialize data
         List<DataEntry> seriesData = new ArrayList<>();
-        for(String tone: tones){
+        Set<String> set = new HashSet<String>(tones);
+        for(String tone: set){
             seriesData.add(new ValueDataEntry(tone, Collections.frequency(tones, tone)));
         }
 
